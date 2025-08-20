@@ -1,0 +1,70 @@
+nohup: ignoring input
+[I 2025-08-20 02:17:34.329 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2025-08-20 02:17:34.331 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[W 2025-08-20 02:17:34.332 LabApp] 'token' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2025-08-20 02:17:34.332 LabApp] 'password' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2025-08-20 02:17:34.334 ServerApp] ServerApp.token config is deprecated in 2.0. Use IdentityProvider.token.
+[I 2025-08-20 02:17:34.334 ServerApp] jupyterlab | extension was successfully linked.
+[I 2025-08-20 02:17:34.334 ServerApp] jupyterlab_jupytext | extension was successfully linked.
+[I 2025-08-20 02:17:34.335 ServerApp] Writing Jupyter server cookie secret to /home/ubuntu/.local/share/jupyter/runtime/jupyter_cookie_secret
+[I 2025-08-20 02:17:34.462 ServerApp] notebook_shim | extension was successfully linked.
+[W 2025-08-20 02:17:34.472 ServerApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
+[I 2025-08-20 02:17:34.472 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2025-08-20 02:17:34.473 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2025-08-20 02:17:34.474 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2025-08-20 02:17:34.475 LabApp] JupyterLab extension loaded from /workspace/ai_tools_env/lib/python3.13/site-packages/jupyterlab
+[I 2025-08-20 02:17:34.475 LabApp] JupyterLab application directory is /workspace/ai_tools_env/share/jupyter/lab
+[I 2025-08-20 02:17:34.475 LabApp] Extension Manager is 'pypi'.
+[I 2025-08-20 02:17:34.493 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2025-08-20 02:17:34.493 ServerApp] [Jupytext Server Extension] Deriving an AsyncTextFileContentsManager from AsyncLargeFileManager
+[I 2025-08-20 02:17:34.494 ServerApp] jupyterlab_jupytext | extension was successfully loaded.
+[I 2025-08-20 02:17:34.494 ServerApp] Serving notebooks from local directory: /workspace/SD-DarkMaster-Pro
+[I 2025-08-20 02:17:34.494 ServerApp] Jupyter Server 2.16.0 is running at:
+[I 2025-08-20 02:17:34.494 ServerApp] http://cursor:8888/lab
+[I 2025-08-20 02:17:34.494 ServerApp]     http://127.0.0.1:8888/lab
+[I 2025-08-20 02:17:34.494 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[I 2025-08-20 02:17:34.591 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[W 2025-08-20 02:18:02.208 ServerApp] 403 POST /api/sessions (127.0.0.1): '_xsrf' argument missing from POST
+[W 2025-08-20 02:18:02.208 ServerApp] wrote error: "'_xsrf' argument missing from POST"
+    Traceback (most recent call last):
+      File "/workspace/ai_tools_env/lib/python3.13/site-packages/tornado/web.py", line 1827, in _execute
+        result = await result  # type: ignore
+                 ^^^^^^^^^^^^
+      File "/workspace/ai_tools_env/lib/python3.13/site-packages/jupyter_server/base/handlers.py", line 752, in prepare
+        await super().prepare()
+      File "/workspace/ai_tools_env/lib/python3.13/site-packages/jupyter_server/base/handlers.py", line 634, in prepare
+        self.check_xsrf_cookie()
+        ~~~~~~~~~~~~~~~~~~~~~~^^
+      File "/workspace/ai_tools_env/lib/python3.13/site-packages/jupyter_server/base/handlers.py", line 538, in check_xsrf_cookie
+        return super().check_xsrf_cookie()
+               ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+      File "/workspace/ai_tools_env/lib/python3.13/site-packages/tornado/web.py", line 1655, in check_xsrf_cookie
+        raise HTTPError(403, "'_xsrf' argument missing from POST")
+    tornado.web.HTTPError: HTTP 403: Forbidden ('_xsrf' argument missing from POST)
+[W 2025-08-20 02:18:02.209 ServerApp] 403 POST /api/sessions (7833f1ead5bd4a49b8bd0a5f2e042613@127.0.0.1) 2.47ms referer=None
+[W 2025-08-20 02:27:13.254 ServerApp] Clearing invalid/expired login cookie username-127-0-0-1-8888
+[I 2025-08-20 02:27:20.976 LabApp] Build is up to date
+[I 2025-08-20 02:27:44.148 ServerApp] Writing notebook-signing key to /home/ubuntu/.local/share/jupyter/notebook_secret
+[W 2025-08-20 02:27:44.150 ServerApp] Notebook notebook/SD-DarkMaster-Pro-executed.ipynb is not trusted
+[I 2025-08-20 02:27:46.171 ServerApp] Kernel started: 7d4d4185-7bc1-4575-94b7-17cd6fe2de90
+[I 2025-08-20 02:27:47.635 ServerApp] Connecting to kernel 7d4d4185-7bc1-4575-94b7-17cd6fe2de90.
+[W 2025-08-20 02:27:47.636 ServerApp] The websocket_ping_timeout (90000) cannot be longer than the websocket_ping_interval (30000).
+    Setting websocket_ping_timeout=30000
+[I 2025-08-20 02:27:48.110 ServerApp] Starting buffering for 7d4d4185-7bc1-4575-94b7-17cd6fe2de90:ebd50f0d-153f-4ab1-8093-d9964bee9b5f
+[I 2025-08-20 02:27:48.826 ServerApp] Connecting to kernel 7d4d4185-7bc1-4575-94b7-17cd6fe2de90.
+[I 2025-08-20 02:27:50.020 ServerApp] Connecting to kernel 7d4d4185-7bc1-4575-94b7-17cd6fe2de90.
+[I 2025-08-20 02:29:08.435 ServerApp] Kernel started: 93ea3590-baa0-4cb0-af51-4f47d83eaa57
+[I 2025-08-20 02:29:08.436 ServerApp] Kernel shutdown: 7d4d4185-7bc1-4575-94b7-17cd6fe2de90
+[I 2025-08-20 02:29:10.082 ServerApp] Connecting to kernel 93ea3590-baa0-4cb0-af51-4f47d83eaa57.
+[I 2025-08-20 02:29:44.804 ServerApp] Saving file at /notebook/SD-DarkMaster-Pro-executed.ipynb
+[I 2025-08-20 02:29:44.804 ServerApp] Saving SD-DarkMaster-Pro-executed.ipynb
+[I 2025-08-20 02:36:54.367 ServerApp] Starting buffering for 93ea3590-baa0-4cb0-af51-4f47d83eaa57:deb41c0d-eadb-46d9-b1c8-e8cf207b0c56
+[I 2025-08-20 02:39:29.198 ServerApp] 302 GET / (@127.0.0.1) 0.95ms
+[W 2025-08-20 02:39:29.437 ServerApp] Clearing invalid/expired login cookie username-localhost-8888
+[I 2025-08-20 02:39:37.376 LabApp] Build is up to date
+[I 2025-08-20 02:39:38.602 ServerApp] Connecting to kernel 93ea3590-baa0-4cb0-af51-4f47d83eaa57.
+[I 2025-08-20 02:39:39.565 ServerApp] Starting buffering for 93ea3590-baa0-4cb0-af51-4f47d83eaa57:f20c099d-a57c-4f44-9fae-5a5f553f5026
+[C 2025-08-20 02:45:32.266 ServerApp] received signal 15, stopping
+[I 2025-08-20 02:45:32.267 ServerApp] Shutting down 5 extensions
+[I 2025-08-20 02:45:32.267 ServerApp] Shutting down 1 kernel
+[I 2025-08-20 02:45:32.268 ServerApp] Kernel shutdown: 93ea3590-baa0-4cb0-af51-4f47d83eaa57
