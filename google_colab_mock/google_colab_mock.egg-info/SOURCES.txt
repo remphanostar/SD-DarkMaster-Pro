@@ -1,0 +1,7 @@
+setup.py
+google/__init__.py
+google/colab/__init__.py
+google_colab_mock.egg-info/PKG-INFO
+google_colab_mock.egg-info/SOURCES.txt
+google_colab_mock.egg-info/dependency_links.txt
+google_colab_mock.egg-info/top_level.txt
