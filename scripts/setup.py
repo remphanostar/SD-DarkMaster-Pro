@@ -118,9 +118,14 @@ DARK_MODE_PRO_THEME = {
 
 # Required dependencies
 CORE_DEPENDENCIES = [
-    'streamlit>=1.28.0',
+    'streamlit>=1.29.0',
     'gradio>=4.0.0',
     'torch>=2.0.0',
+    # Enhanced Streamlit components
+    'streamlit-option-menu>=0.3.6',
+    'streamlit-antd-components>=0.3.0',
+    'streamlit-card>=0.0.5',
+    'streamlit-extras>=0.3.6',
     'torchvision',
     'transformers>=4.30.0',
     'diffusers>=0.21.0',
