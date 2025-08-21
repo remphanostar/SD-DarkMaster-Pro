@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCP Extension Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            color: #444;
+            margin-top: 0;
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #dc2626;
+        }
+        .btn-secondary {
+            background: #6b7280;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 RCP Extension Test Page</h1>
+        
+        <div class="instructions">
+            <strong>Instructions:</strong> Use this page to test the RCP Firefox extension. 
+            Make sure the extension is installed and enabled. Try the following tests:
+            <ul>
+                <li>Right-click on text fields to test context menu</li>
+                <li>Use the extension popup to copy and paste prompts</li>
+                <li>Test auto-paste functionality</li>
+                <li>Verify the floating icon appears</li>
+            </ul>
+        </div>
+
+        <!-- Basic Text Fields Test -->
+        <div class="test-section">
+            <h2>📝 Basic Text Fields</h2>
+            <div class="form-group">
+                <label for="basic-input">Simple Text Input:</label>
+                <input type="text" id="basic-input" placeholder="Right-click here to test context menu">
+            </div>
+            <div class="form-group">
+                <label for="basic-textarea">Text Area:</label>
+                <textarea id="basic-textarea" placeholder="Try pasting prompts here using the extension"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="email-input">Email Input:</label>
+                <input type="email" id="email-input" placeholder="email@example.com">
+            </div>
+            <button class="btn" onclick="clearBasicFields()">Clear Fields</button>
+            <button class="btn btn-secondary" onclick="testBasicFields()">Test Content</button>
+            <div id="basic-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- Rich Text Editor Test -->
+        <div class="test-section">
+            <h2>📄 Rich Text Editor</h2>
+            <div class="form-group">
+                <label>Content Editable Div:</label>
+                <div contenteditable="true" id="rich-editor" style="border: 1px solid #ddd; padding: 10px; min-height: 100px; border-radius: 4px;">
+                    This is a rich text editor. Try pasting prompts here using the RCP extension.
+                </div>
+            </div>
+            <button class="btn" onclick="clearRichEditor()">Clear Editor</button>
+            <button class="btn btn-secondary" onclick="testRichEditor()">Test Content</button>
+            <div id="rich-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- Code Editor Test -->
+        <div class="test-section">
+            <h2>💻 Code Editor Simulation</h2>
+            <div class="form-group">
+                <label for="code-editor">Code Editor:</label>
+                <textarea id="code-editor" placeholder="// Try pasting code-related prompts here
+function testFunction() {
+    console.log('Hello, World!');
+}"></textarea>
+            </div>
+            <button class="btn" onclick="clearCodeEditor()">Clear Editor</button>
+            <button class="btn btn-secondary" onclick="testCodeEditor()">Test Content</button>
+            <div id="code-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- Form Elements Test -->
+        <div class="test-section">
+            <h2>📋 Form Elements</h2>
+            <div class="form-group">
+                <label for="search-input">Search Input:</label>
+                <input type="search" id="search-input" placeholder="Search...">
+            </div>
+            <div class="form-group">
+                <label for="url-input">URL Input:</label>
+                <input type="url" id="url-input" placeholder="https://example.com">
+            </div>
+            <div class="form-group">
+                <label for="tel-input">Phone Input:</label>
+                <input type="tel" id="tel-input" placeholder="+1 (555) 123-4567">
+            </div>
+            <div class="form-group">
+                <label for="select-input">Select Dropdown:</label>
+                <select id="select-input">
+                    <option value="">Select an option...</option>
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div>
+            <button class="btn" onclick="clearFormElements()">Clear Form</button>
+            <button class="btn btn-secondary" onclick="testFormElements()">Test Form</button>
+            <div id="form-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- Extension Features Test -->
+        <div class="test-section">
+            <h2>🔧 Extension Features</h2>
+            <button class="btn" onclick="testFloatingIcon()">Test Floating Icon</button>
+            <button class="btn btn-secondary" onclick="testContextMenu()">Test Context Menu</button>
+            <button class="btn btn-secondary" onclick="testAutoPaste()">Test Auto-Paste</button>
+            <button class="btn btn-secondary" onclick="showExtensionInfo()">Show Extension Info</button>
+            <div id="extension-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="test-results">
+                <p>Run the tests above to see results here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test functions
+        function clearBasicFields() {
+            document.getElementById('basic-input').value = '';
+            document.getElementById('basic-textarea').value = '';
+            document.getElementById('email-input').value = '';
+            showStatus('basic-status', 'Basic fields cleared', 'success');
+        }
+
+        function testBasicFields() {
+            const fields = ['basic-input', 'basic-textarea', 'email-input'];
+            fields.forEach(id => {
+                document.getElementById(id).value = `Test content for ${id}`;
+            });
+            showStatus('basic-status', 'Test content added to basic fields', 'info');
+        }
+
+        function clearRichEditor() {
+            document.getElementById('rich-editor').innerHTML = 'This is a rich text editor. Try pasting prompts here using the RCP extension.';
+            showStatus('rich-status', 'Rich editor cleared', 'success');
+        }
+
+        function testRichEditor() {
+            document.getElementById('rich-editor').innerHTML = '<strong>Test content</strong> for rich text editor. <em>This should support formatting.</em>';
+            showStatus('rich-status', 'Test content added to rich editor', 'info');
+        }
+
+        function clearCodeEditor() {
+            document.getElementById('code-editor').value = '// Try pasting code-related prompts here\nfunction testFunction() {\n    console.log(\'Hello, World!\');\n}';
+            showStatus('code-status', 'Code editor cleared', 'success');
+        }
+
+        function testCodeEditor() {
+            document.getElementById('code-editor').value = '// Test code for RCP extension\nfunction testRCPExtension() {\n    console.log(\'RCP Extension Test\');\n    return \'Extension is working!\';\n}';
+            showStatus('code-status', 'Test code added to code editor', 'info');
+        }
+
+        function clearFormElements() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('url-input').value = '';
+            document.getElementById('tel-input').value = '';
+            document.getElementById('select-input').value = '';
+            showStatus('form-status', 'Form elements cleared', 'success');
+        }
+
+        function testFormElements() {
+            document.getElementById('search-input').value = 'test search';
+            document.getElementById('url-input').value = 'https://example.com';
+            document.getElementById('tel-input').value = '+1 (555) 123-4567';
+            document.getElementById('select-input').value = 'option2';
+            showStatus('form-status', 'Test content added to form elements', 'info');
+        }
+
+        function testFloatingIcon() {
+            showStatus('extension-status', 'Look for the RCP floating icon on this page. It should appear in the bottom-right corner.', 'info');
+            addTestResult('Floating Icon Test', 'Check for floating icon appearance');
+        }
+
+        function testContextMenu() {
+            showStatus('extension-status', 'Right-click on any text field to test the context menu. Look for "RCP" in the menu.', 'info');
+            addTestResult('Context Menu Test', 'Test right-click context menu functionality');
+        }
+
+        function testAutoPaste() {
+            showStatus('extension-status', 'Use the extension popup to copy a prompt, then try auto-pasting it into any field.', 'info');
+            addTestResult('Auto-Paste Test', 'Test automatic paste functionality');
+        }
+
+        function showExtensionInfo() {
+            const info = `
+                <strong>RCP Extension Test Information</strong><br>
+                <strong>Page URL:</strong> ${window.location.href}<br>
+                <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                <strong>Timestamp:</strong> ${new Date().toLocaleString()}<br>
+                <strong>Test Page Purpose:</strong> This page helps test the RCP Firefox extension functionality.
+            `;
+            showStatus('extension-status', info, 'info');
+        }
+
+        function showStatus(elementId, message, type) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+            
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function addTestResult(testName, result) {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const resultHtml = `
+                <div class="test-result">
+                    <strong>${testName}</strong> - ${timestamp}<br>
+                    ${result}
+                </div>
+            `;
+            resultsDiv.innerHTML += resultHtml;
+        }
+
+        // Auto-detect if extension is available
+        function detectExtension() {
+            if (typeof browser !== 'undefined' && browser.runtime) {
+                console.log('✅ Extension context detected');
+                addTestResult('Extension Detection', 'Extension context is available');
+            } else {
+                console.log('❌ Extension context not detected');
+                addTestResult('Extension Detection', 'Extension context not available - running in regular browser context');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            detectExtension();
+            addTestResult('Page Load', 'Test page loaded successfully');
+        });
+
+        // Add some keyboard shortcuts for testing
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        testBasicFields();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        testRichEditor();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        testCodeEditor();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        testFormElements();
+                        break;
+                }
+            }
+        });
+
+        // Add right-click context detection
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') {
+                console.log('🖱️ Right-click detected on editable element');
+                addTestResult('Context Menu', `Right-click on ${e.target.tagName}`);
+            }
+        });
+    </script>
+</body>
+</html>

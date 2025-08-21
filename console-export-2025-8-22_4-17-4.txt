@@ -1,0 +1,133 @@
+00:09:21.268 Loading failed for the <script> with source “https://cdn.lr-in-prod.com/logger-1.min.js”. welcome:1:1
+00:09:21.268 LogRocket: script could not load. Check that you have a valid network connection. 5255-da4d89750b2d4ea8.js:1:55507
+00:09:21.635 Pre-initialization cleanup floatingIcon.ts-CJpmuZwW.js:299:382
+00:09:21.635 Initializing floating icon script floatingIcon.ts-CJpmuZwW.js:1:86
+00:09:21.635 Detaching selection event listeners floatingIcon.ts-CJpmuZwW.js:1:3261
+00:09:21.635 Feature state from localStorage: false floatingIcon.ts-CJpmuZwW.js:1:221
+00:09:21.635 Uncaught ReferenceError: chrome is not defined
+    N moz-extension://27567ab9-389c-4bbd-8c94-598b2f4244bc/assets/floatingIcon.ts-CJpmuZwW.js:1
+    <anonymous> moz-extension://27567ab9-389c-4bbd-8c94-598b2f4244bc/assets/floatingIcon.ts-CJpmuZwW.js:299
+    <anonymous> moz-extension://27567ab9-389c-4bbd-8c94-598b2f4244bc/assets/floatingIcon.ts-CJpmuZwW.js:299
+floatingIcon.ts-CJpmuZwW.js:1:323
+00:09:21.834 Uncaught SyntaxError: import declarations may only appear at top level of a module
+    NextJS 9
+welcome:3:1
+00:09:21.836 Cookie “dmn_chk_0198cc88-9cac-7041-988f-e94ae48ccb06” has been rejected for invalid domain. welcome
+00:09:21.927 Loading failed for the <script> with source “https://events-proxy.mintlify.com/static/exception-autocapture.js?v=1.164.3”. 2 welcome:1:1
+00:09:21.928 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/decide/?v=3&ip=1&_=1755778161838&ver=1.164.3&compression=base64. (Reason: CORS request did not succeed). Status code: (null).
+00:09:21.928 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?ip=1&_=1755778161862&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:21.929 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?ip=1&_=1755778161888&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:24.855 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?ip=1&_=1755778164850&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:26.048 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778166042&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:26.048 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778166044&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:29.064 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778169060&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:30.746 The resource at “https://docs.cursor.com/mintlify-assets/_next/static/media/bb3ef058b751a6ad-s.p.woff2” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly. welcome
+00:09:30.746 The resource at “https://docs.cursor.com/mintlify-assets/_next/static/media/e4af272ccee01ff0-s.p.woff2” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly. welcome
+00:09:30.746 The resource at “https://mintcdn.com/cursor/images/welcome.png?maxW=2000&auto=format&n=k0jUCRlLaIFm2c2r&q=85&s=8a659a2d5fd64598f8cf8f5ca21bd78f” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly. welcome
+00:09:32.085 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778172080&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:32.085 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778172081&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:38.125 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778178122&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:47.549 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778187546&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:47.550 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778187547&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:53.671 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778193668&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:09:59.753 Error: Promised response from onMessage listener went out of scope ExtensionMessagingService.js:89:34
+00:10:08.903 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778208900&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:10:11.922 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778211920&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:10:14.944 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778214942&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:11:03.444 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778263440&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:11:03.445 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778263442&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:11:09.482 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778269479&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:12:22.099 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778342097&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:12:43.243 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778363240&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:12:58.348 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778378345&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:14:56.475 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778496468&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:15:23.725 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778523721&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:16:51.882 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778611879&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:22:18.461 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778938458&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:22:42.500 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778962497&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:23:12.560 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755778992556&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:33:29.612 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755779609601&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:34:51.553 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755779691550&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:36:58.754 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755779818752&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:47:01.694 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://d1c8fcfa-cd2c-4155-86b8-7f258ae82d5d/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+00:58:20.358 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755781100355&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+00:59:48.135 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755781188132&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+01:00:57.781 Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://events-proxy.mintlify.com/e/?retry_count=1&ip=1&_=1755781257778&ver=1.164.3&compression=gzip-js. (Reason: CORS request did not succeed). Status code: (null).
+02:15:31.423 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://a070cf06-40c2-4a07-a2a5-5be21025fc6f/assets/floatingIcon.ts-CJpmuZwW.js:1
+2 floatingIcon.ts-CJpmuZwW.js:1:1
+02:19:02.664 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://3c9ef84d-4d0c-486e-82e2-4d97fcd114a8/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+02:31:22.594 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://32546f75-636c-4e7f-a415-46bdef736e27/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+03:23:32.949 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://9b67ee37-efc9-4f13-a8b2-dfff496ffec6/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+03:24:57.220 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://59516bdd-e696-44dd-b4dd-23fd3788b0f7/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+03:32:09.125 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://90783992-b4a3-44aa-96dd-d0bc7092c3c0/assets/floatingIcon.ts-CJpmuZwW.js:1
+3 floatingIcon.ts-CJpmuZwW.js:1:1
+03:41:56.065 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://db9545d5-e15f-41e3-bb15-601e58c51932/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+04:03:28.606 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> moz-extension://dac51a3b-3c2f-47e3-9a1c-84861e33d77a/assets/floatingIcon.ts-CJpmuZwW.js:1
+floatingIcon.ts-CJpmuZwW.js:1:1
+04:12:42.888 Uncaught SyntaxError: redeclaration of let l
+    <anonymous> floatingIcon.ts:25
+floatingIcon.ts-CJpmuZwW.js:1:1
+04:16:00.919 Error in parsing value for ‘-webkit-text-size-adjust’.  Declaration dropped. 589b5adfbc710d58.css:3:193
+04:16:00.919 Unknown pseudo-class or pseudo-element ‘-ms-expand’.  Ruleset ignored due to bad selector. 589b5adfbc710d58.css:3:9605
+04:16:00.919 Error in parsing value for ‘scrollbar-gutter’.  Declaration dropped. 589b5adfbc710d58.css:3:9823
+04:16:00.920 Error in parsing value for ‘content’.  Declaration dropped. 589b5adfbc710d58.css:7:24097
+04:16:00.920 Error in parsing value for ‘image-rendering’.  Declaration dropped. 589b5adfbc710d58.css:7:27304
+04:16:00.921 Unknown property ‘-moz-osx-font-smoothing’.  Declaration dropped. 589b5adfbc710d58.css:7:66441
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:71757
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:71873
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:72145
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:72261
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:72537
+04:16:00.921 Ruleset ignored due to bad selector. 589b5adfbc710d58.css:7:72656
+04:16:00.938 GET
+data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(229 229 229 / 0.2)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e
+
+04:16:01.165 Ruleset ignored due to bad selector. welcome:35:37
+04:16:01.753 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://a070cf06-40c2-4a07-a2a5-5be21025fc6f/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.753 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://3c9ef84d-4d0c-486e-82e2-4d97fcd114a8/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.754 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://32546f75-636c-4e7f-a415-46bdef736e27/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.754 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://9b67ee37-efc9-4f13-a8b2-dfff496ffec6/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.755 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://59516bdd-e696-44dd-b4dd-23fd3788b0f7/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.755 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://90783992-b4a3-44aa-96dd-d0bc7092c3c0/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.755 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://db9545d5-e15f-41e3-bb15-601e58c51932/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:01.756 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://dac51a3b-3c2f-47e3-9a1c-84861e33d77a/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:09.075 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://27567ab9-389c-4bbd-8c94-598b2f4244bc/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:09.075 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://a070cf06-40c2-4a07-a2a5-5be21025fc6f/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map
+04:16:09.075 Source map error: Error: NetworkError when attempting to fetch resource.
+Resource URL: moz-extension://90783992-b4a3-44aa-96dd-d0bc7092c3c0/assets/floatingIcon.ts-CJpmuZwW.js
+Source Map URL: floatingIcon.ts-CJpmuZwW.js.map

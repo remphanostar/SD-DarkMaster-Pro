@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Test JSON Folder",
+    "prompts": [
+      {
+        "title": "JSON Test Prompt 1",
+        "text": "This is the first test prompt from the JSON file."
+      },
+      {
+        "title": "JSON Test Prompt 2",
+        "text": "This is the second test prompt from the JSON file."
+      }
+    ]
+  }
+]

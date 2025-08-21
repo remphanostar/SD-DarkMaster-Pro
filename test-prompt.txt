@@ -1,0 +1,9 @@
+This is a test text file to verify that the import functionality works correctly.
+
+This should be imported as a prompt in the selected category.
+
+Features Tested:
+- Text file import
+- File content extraction
+- Category assignment
+- Prompt creation
