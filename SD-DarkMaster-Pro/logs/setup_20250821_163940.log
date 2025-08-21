@@ -1,0 +1,55 @@
+2025-08-21 16:39:40,483 | INFO | Loaded 29 extensions for pre-installation
+2025-08-21 16:39:40,485 | INFO | Session initialized: 04c9f00a
+2025-08-21 16:39:40,486 | INFO | Installing core dependencies...
+2025-08-21 16:39:40,486 | INFO | Installing 23 dependencies for colab
+2025-08-21 16:39:41,927 | INFO | Installed batch 1: ['streamlit>=1.28.0', 'gradio>=4.0.0', 'torch>=2.0.0', 'torchvision', 'transformers>=4.30.0']
+2025-08-21 16:39:42,401 | INFO | Installed batch 2: ['diffusers>=0.21.0', 'accelerate', 'xformers', 'opencv-python', 'Pillow>=10.0.0']
+2025-08-21 16:39:42,838 | INFO | Installed batch 3: ['numpy', 'pandas', 'requests', 'tqdm', 'pyyaml']
+2025-08-21 16:39:43,287 | INFO | Installed batch 4: ['jsonschema', 'aiohttp', 'aiofiles', 'psutil', 'matplotlib']
+2025-08-21 16:39:43,745 | INFO | Installed batch 5: ['seaborn', 'plotly', 'rich']
+2025-08-21 16:39:43,746 | INFO | Setting up unified storage...
+2025-08-21 16:39:43,747 | INFO | Setting up unified storage structure...
+2025-08-21 16:39:43,747 | INFO | Created checkpoints directory: /content/SD-DarkMaster-Pro/storage/models/Stable-diffusion
+2025-08-21 16:39:43,748 | INFO | Created vae directory: /content/SD-DarkMaster-Pro/storage/models/VAE
+2025-08-21 16:39:43,748 | INFO | Created lora directory: /content/SD-DarkMaster-Pro/storage/models/Lora
+2025-08-21 16:39:43,748 | INFO | Created embeddings directory: /content/SD-DarkMaster-Pro/storage/embeddings
+2025-08-21 16:39:43,749 | INFO | Created hypernetworks directory: /content/SD-DarkMaster-Pro/storage/models/hypernetworks
+2025-08-21 16:39:43,750 | INFO | Created controlnet directory: /content/SD-DarkMaster-Pro/storage/models/ControlNet
+2025-08-21 16:39:43,751 | INFO | Created upscalers directory: /content/SD-DarkMaster-Pro/storage/models/ESRGAN
+2025-08-21 16:39:43,751 | INFO | Creating configuration files...
+2025-08-21 16:39:43,752 | INFO | Created Streamlit config: /content/SD-DarkMaster-Pro/configs/streamlit/config.toml
+2025-08-21 16:39:43,753 | INFO | Created Gradio config: /content/SD-DarkMaster-Pro/configs/gradio_fallback/interface_config.json
+2025-08-21 16:39:43,754 | INFO | Created environment config: /content/SD-DarkMaster-Pro/configs/environment.json
+2025-08-21 16:39:45,568 | INFO | Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Can not load face (unknown file format; error code 0x2)
+2025-08-21 16:39:45,582 | INFO | generated new fontManager
+2025-08-21 16:39:45,600 | INFO | HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
+2025-08-21 16:39:46,277 | INFO | HTTP Request: GET http://localhost:7860/gradio_api/startup-events "HTTP/1.1 200 OK"
+2025-08-21 16:39:46,289 | INFO | HTTP Request: HEAD http://localhost:7860/ "HTTP/1.1 200 OK"
+2025-08-21 16:39:46,356 | INFO | Initializing unified storage structure...
+2025-08-21 16:39:46,357 | INFO | Created models/checkpoints: /workspace/SD-DarkMaster-Pro/storage/models/Stable-diffusion
+2025-08-21 16:39:46,357 | INFO | Created models/vae: /workspace/SD-DarkMaster-Pro/storage/models/VAE
+2025-08-21 16:39:46,357 | INFO | Created models/lora: /workspace/SD-DarkMaster-Pro/storage/models/Lora
+2025-08-21 16:39:46,358 | INFO | Created models/lycoris: /workspace/SD-DarkMaster-Pro/storage/models/LyCORIS
+2025-08-21 16:39:46,358 | INFO | Created models/embeddings: /workspace/SD-DarkMaster-Pro/storage/embeddings
+2025-08-21 16:39:46,359 | INFO | Created models/hypernetworks: /workspace/SD-DarkMaster-Pro/storage/models/hypernetworks
+2025-08-21 16:39:46,360 | INFO | Created models/controlnet: /workspace/SD-DarkMaster-Pro/storage/models/ControlNet
+2025-08-21 16:39:46,361 | INFO | Created models/upscalers: /workspace/SD-DarkMaster-Pro/storage/models/ESRGAN
+2025-08-21 16:39:46,361 | INFO | Created models/clip: /workspace/SD-DarkMaster-Pro/storage/models/CLIP
+2025-08-21 16:39:46,362 | INFO | Created models/clip_vision: /workspace/SD-DarkMaster-Pro/storage/models/CLIP_vision
+2025-08-21 16:39:46,362 | INFO | Created models/diffusers: /workspace/SD-DarkMaster-Pro/storage/models/diffusers
+2025-08-21 16:39:46,363 | INFO | Created outputs/txt2img: /workspace/SD-DarkMaster-Pro/storage/outputs/txt2img-images
+2025-08-21 16:39:46,363 | INFO | Created outputs/img2img: /workspace/SD-DarkMaster-Pro/storage/outputs/img2img-images
+2025-08-21 16:39:46,364 | INFO | Created outputs/extras: /workspace/SD-DarkMaster-Pro/storage/outputs/extras-images
+2025-08-21 16:39:46,365 | INFO | Created outputs/grids: /workspace/SD-DarkMaster-Pro/storage/outputs/txt2img-grids
+2025-08-21 16:39:46,365 | INFO | Created outputs/samples: /workspace/SD-DarkMaster-Pro/storage/outputs/samples
+2025-08-21 16:39:46,366 | INFO | Created outputs/temp: /workspace/SD-DarkMaster-Pro/storage/outputs/temp
+2025-08-21 16:39:46,366 | INFO | Created cache/huggingface: /workspace/SD-DarkMaster-Pro/storage/cache/huggingface
+2025-08-21 16:39:46,367 | INFO | Created cache/clip: /workspace/SD-DarkMaster-Pro/storage/cache/clip
+2025-08-21 16:39:46,367 | INFO | Created cache/torch: /workspace/SD-DarkMaster-Pro/storage/cache/torch
+2025-08-21 16:39:46,367 | INFO | Created cache/transformers: /workspace/SD-DarkMaster-Pro/storage/cache/transformers
+2025-08-21 16:39:46,368 | INFO | Created configs/webui: /workspace/SD-DarkMaster-Pro/storage/configs/webui
+2025-08-21 16:39:46,368 | INFO | Created configs/models: /workspace/SD-DarkMaster-Pro/storage/configs/models
+2025-08-21 16:39:46,368 | INFO | Created configs/presets: /workspace/SD-DarkMaster-Pro/storage/configs/presets
+2025-08-21 16:39:46,369 | INFO | ✅ Unified storage initialized successfully
+2025-08-21 16:39:46,536 | INFO | Detected platform: colab (via path: /content)
+2025-08-21 16:39:47,666 | INFO | HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
