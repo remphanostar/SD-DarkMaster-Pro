@@ -167,8 +167,6 @@ with tab1:
         ])
         
         with tab_models:
-
-        with tab_models:
             st.markdown("#### SD 1.5 Checkpoints")
             
             # Get models from unified manager
