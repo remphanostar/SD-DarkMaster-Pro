@@ -1,0 +1,7 @@
+{
+  "name": "Streamlit UI Designer",
+  "description": "A drag-and-drop interface for visually designing Streamlit applications and generating the corresponding Python code. Build your UI without writing a single line of code upfront.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
