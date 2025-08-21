@@ -227,8 +227,9 @@ class WebUILauncher:
         if self.launch_config.extensions_enabled:
             self._install_extensions(webui_dir)
         
-        # Apply Dark Mode Pro theme
-        self._apply_dark_theme(webui_dir, webui_type)
+        # Note: WebUIs use their own native themes
+        # We don't override them - users can configure themes within each WebUI
+        logger.info(f"{webui_type} will use its native theme settings")
         
         return True
     
@@ -263,50 +264,43 @@ class WebUILauncher:
             else:
                 logger.info(f"Extension already installed: {ext_name}")
     
-    def _apply_dark_theme(self, webui_dir: Path, webui_type: str):
-        """Apply Dark Mode Pro theme to WebUI"""
-        logger.info("Applying Dark Mode Pro theme...")
+    # REMOVED: Custom theme application for WebUIs
+    # WebUIs should use their own native themes
+    # Users can configure themes within each WebUI's settings
+    # A1111 has built-in dark themes
+    # ComfyUI has its own theme system
+    # Forge/ReForge inherit A1111's themes
+    
+    def _configure_webui_defaults(self, webui_dir: Path, webui_type: str):
+        """Configure WebUI with sensible defaults (without overriding themes)"""
+        logger.info(f"Configuring {webui_type} defaults...")
         
-        # Create custom CSS for Dark Mode Pro
-        css_content = """
-/* SD-DarkMaster-Pro Theme */
-:root {
-    --darkpro-primary: #111827;
-    --darkpro-accent: #10B981;
-    --darkpro-text: #6B7280;
-    --darkpro-surface: #1F2937;
-    --darkpro-border: #374151;
-}
-
-body, .gradio-container {
-    background: var(--darkpro-primary) !important;
-    color: var(--darkpro-text) !important;
-}
-
-.dark {
-    --body-background-fill: var(--darkpro-primary) !important;
-    --background-fill-primary: var(--darkpro-surface) !important;
-    --background-fill-secondary: var(--darkpro-surface) !important;
-    --border-color-primary: var(--darkpro-border) !important;
-    --body-text-color: var(--darkpro-text) !important;
-    --block-title-text-color: var(--darkpro-accent) !important;
-}
-"""
-        
-        # Save custom CSS
-        if webui_type in ['A1111', 'Forge', 'ReForge', 'SD-Next', 'SD-UX']:
-            style_dir = webui_dir / 'style.css'
-            with open(style_dir, 'w') as f:
-                f.write(css_content)
+        # Set up config files with recommended settings
+        if webui_type in ['A1111', 'Forge', 'ReForge', 'SD-Next']:
+            # Create config.json with recommended settings (but not theme)
+            config = {
+                "show_progress_every_n_steps": 1,
+                "show_progress_grid": True,
+                "return_grid": True,
+                "do_not_show_images": False,
+                "js_modal_lightbox": True,
+                "js_modal_lightbox_initially_zoomed": True,
+                "upscaling_max_images_in_cache": 5,
+                # Let user choose their own theme in the WebUI
+            }
+            
+            config_file = webui_dir / 'config.json'
+            if not config_file.exists():
+                with open(config_file, 'w') as f:
+                    json.dump(config, f, indent=2)
+                logger.info(f"Created default config for {webui_type}")
         
         elif webui_type == 'ComfyUI':
-            # ComfyUI has different theming approach
-            web_dir = webui_dir / 'web' / 'extensions' / 'darkpro'
+            # ComfyUI uses different configuration approach
+            # Just ensure the web directory exists
+            web_dir = webui_dir / 'web'
             web_dir.mkdir(parents=True, exist_ok=True)
-            
-            theme_file = web_dir / 'darkpro.css'
-            with open(theme_file, 'w') as f:
-                f.write(css_content)
+            logger.info("ComfyUI will use its default theme")
     
     async def launch_webui(self, config: LaunchConfig = None) -> bool:
         """Launch WebUI with configuration"""

@@ -22,6 +22,8 @@ from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
 import urllib.parse
+import subprocess
+import shutil
 
 # Add project root to path
 try:
@@ -169,12 +171,88 @@ class AdvancedDownloadOrchestrator:
         with open(config_file, 'w') as f:
             json.dump(self.session_config, f, indent=2)
     
+    def download_with_aria2c(self, url: str, destination: Path, filename: Optional[str] = None) -> bool:
+        """Download using aria2c for maximum speed"""
+        try:
+            # Check if aria2c is available
+            if not shutil.which('aria2c'):
+                logger.warning("aria2c not found, falling back to standard download")
+                return False
+            
+            # Prepare aria2c command
+            aria2_cmd = [
+                'aria2c',
+                '--allow-overwrite=true',
+                '--console-log-level=error',
+                '--summary-interval=5',
+                '-c',  # Continue/resume
+                '-x16',  # Max 16 connections per server
+                '-s16',  # Split into 16 segments
+                '-k1M',  # 1MB piece size
+                '-j5',  # 5 parallel downloads
+                '--dir=' + str(destination),
+            ]
+            
+            # Add filename if specified
+            if filename:
+                aria2_cmd.extend(['-o', filename])
+            
+            # Add CivitAI optimization
+            if 'civitai.com' in url:
+                aria2_cmd.extend(['--header', 'User-Agent: CivitaiLink:Automatic1111'])
+                # Add token if available
+                civitai_token = self.session_config.get('civitai_token')
+                if civitai_token:
+                    aria2_cmd.extend(['--header', f'Authorization: Bearer {civitai_token}'])
+            
+            # Add HuggingFace token if available
+            if 'huggingface.co' in url:
+                hf_token = self.session_config.get('hf_token')
+                if hf_token:
+                    aria2_cmd.extend(['--header', f'Authorization: Bearer {hf_token}'])
+            
+            # Add the URL
+            aria2_cmd.append(url)
+            
+            logger.info(f"Downloading with aria2c (16x speed): {url}")
+            
+            # Execute aria2c
+            result = subprocess.run(aria2_cmd, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                logger.info(f"✅ Downloaded successfully with aria2c: {filename or url}")
+                return True
+            else:
+                logger.error(f"aria2c failed: {result.stderr}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error using aria2c: {e}")
+            return False
+    
     async def download_with_metadata(self, url: str, metadata: DownloadMetadata = None) -> DownloadTask:
         """Download with enhanced metadata"""
-        # Create download task
+        destination = self.storage_manager.get_storage_path('models', metadata.model_type if metadata else 'checkpoint')
+        
+        # Try aria2c first for speed
+        if shutil.which('aria2c'):
+            filename = metadata.model_name if metadata else None
+            if self.download_with_aria2c(url, destination, filename):
+                logger.info(f"✅ Fast download complete with aria2c")
+                # Create completed task for tracking
+                task = DownloadTask(
+                    url=url,
+                    destination=destination,
+                    filename=filename,
+                    status='completed',
+                    progress=100.0
+                )
+                return task
+        
+        # Fallback to async download
         task = DownloadTask(
             url=url,
-            destination=self.storage_manager.get_storage_path('models', metadata.model_type if metadata else 'checkpoint'),
+            destination=destination,
             asset_type=metadata.model_type if metadata else 'checkpoint',
             metadata=metadata.__dict__ if metadata else {},
             priority=MODEL_CATEGORIES.get(metadata.model_type if metadata else 'checkpoint', {}).get('priority', 5)

@@ -408,11 +408,11 @@ class PlatformManager:
         """Get formatted platform information summary"""
         lines = [
             f"Platform: {self.platform}",
-            f"OS: {self.system_info['os']} {self.system_info['os_version']}",
-            f"Python: {self.system_info['python_version']}",
-            f"CPU: {self.system_info['cpu_count']} cores",
-            f"RAM: {self.system_info['memory_gb']:.1f} GB",
-            f"Disk: {self.system_info['disk_free_gb']:.1f} GB free"
+            f"OS: {self.system_info.get('os', 'Unknown')} {self.system_info.get('os_version', '')}",
+            f"Python: {self.system_info.get('python_version', 'Unknown')}",
+            f"CPU: {self.system_info.get('cpu_count', 'Unknown')} cores",
+            f"RAM: {self.system_info.get('memory_gb', 0):.1f} GB",
+            f"Disk: {self.system_info.get('disk_free_gb', 0):.1f} GB free"
         ]
         
         if self.gpu_info['available']:

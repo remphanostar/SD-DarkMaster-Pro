@@ -680,12 +680,69 @@ class HybridDashboardManager:
         ])
         
         with tab1:
-            # Model selection with multi-select
-            selected_models = self.multi_select.create_model_selector(
-                sd15_models,
-                framework='streamlit'
-            )
+            import streamlit as st
+            from cell2_storage_integration import get_model_options, Cell2StorageIntegration
+            
+            st.markdown("### 📦 Central Model Storage")
+            
+            # Get storage status
+            integration = Cell2StorageIntegration()
+            report = integration.get_storage_report()
+            
+            # Display storage info
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                total_gb = report['total_size'] / (1024**3) if report['total_size'] > 0 else 0
+                st.metric("Total Storage", f"{total_gb:.2f} GB")
+            with col2:
+                saved_gb = report['saved_space'] / (1024**3) if report['saved_space'] > 0 else 0
+                st.metric("Space Saved", f"{saved_gb:.2f} GB")
+            with col3:
+                model_count = sum(report['model_counts'].values())
+                st.metric("Models", model_count)
+            
+            st.markdown("---")
+            
+            # Get available models
+            model_options = get_model_options()
+            
+            # Create tabs for model categories
+            model_tabs = st.tabs(list(model_options.keys()))
+            
+            selected_models = []
+            for idx, (category, models) in enumerate(model_options.items()):
+                with model_tabs[idx]:
+                    st.markdown(f"#### {category.upper()} Models")
+                    
+                    for model in models:
+                        col1, col2, col3 = st.columns([3, 1, 1])
+                        with col1:
+                            if st.checkbox(model['name'], key=f"model_{model['value']}"):
+                                selected_models.append(model['value'])
+                        with col2:
+                            st.text(model['size'])
+                        with col3:
+                            # Check if already downloaded
+                            model_path = integration.storage_root / category / model['name']
+                            if model_path.exists():
+                                st.success("✅")
+                            else:
+                                st.text("⬇️")
+            
+            # Store selected models
+            st.session_state['selected_models'] = selected_models
             self.session_config.selected_models = selected_models
+            
+            # Add quick download button
+            if selected_models:
+                if st.button("📥 Download Selected Models", key="quick_download"):
+                    with st.spinner(f"Downloading {len(selected_models)} models..."):
+                        for model_spec in selected_models:
+                            if '/' in model_spec:
+                                model_type, model_name = model_spec.split('/', 1)
+                                if integration.storage_manager:
+                                    integration.storage_manager.download_model(model_type, model_name)
+                    st.success(f"Downloaded {len(selected_models)} models!")
         
         with tab2:
             # LoRA selection in main interface
@@ -779,12 +836,22 @@ class HybridDashboardManager:
         col1, col2 = st.columns(2)
         
         with col1:
+            # Only show our supported WebUIs
+            webui_options = {
+                "ComfyUI": {"status": "✅ Ready (AnxietySolo)", "desc": "Node-based workflows"},
+                "Forge": {"status": "⏳ Custom package pending", "desc": "Best for 16GB VRAM + Extensions"}
+            }
+            
             webui_type = st.selectbox(
                 "WebUI Type",
-                ["A1111", "ComfyUI", "Forge", "ReForge", "SD-UX"],
+                options=list(webui_options.keys()),
+                format_func=lambda x: f"{x} - {webui_options[x]['status']}",
                 key="webui_type"
             )
             self.session_config.webui_type = webui_type
+            
+            # Show description
+            st.info(f"📝 {webui_options[webui_type]['desc']}")
             
             vae = self.multi_select.create_vae_selector('streamlit')
             self.session_config.selected_vae = vae
@@ -862,11 +929,40 @@ class HybridDashboardManager:
         st.sidebar.markdown("## 🚀 Quick Actions")
         
         if st.sidebar.button("🚀 Launch WebUI", key="launch_main"):
-            st.sidebar.success("Launching WebUI...")
-            # Trigger launch script
+            # Import storage integration
+            from cell2_storage_integration import prepare_webui_launch
+            
+            # Get selected WebUI from session
+            webui_type = st.session_state.get('webui_type', 'ComfyUI')
+            selected_models = st.session_state.get('selected_models', [])
+            
+            # Prepare and launch
+            with st.spinner(f"Preparing {webui_type}..."):
+                success, message = prepare_webui_launch(
+                    webui_type=webui_type,
+                    selected_models=selected_models
+                )
+            
+            if success:
+                st.sidebar.success(message)
+                # Now actually launch
+                from launch_final import LauncherAnxietyMethod
+                launcher = LauncherAnxietyMethod()
+                launcher.launch_webui(webui_type.lower())
+            else:
+                st.sidebar.error(message)
         
         if st.sidebar.button("📥 Download All Selected", key="download_all"):
-            st.sidebar.info(f"Downloading {len(self.session_config.selected_models)} models...")
+            from cell2_storage_integration import Cell2StorageIntegration
+            integration = Cell2StorageIntegration()
+            
+            selected_models = st.session_state.get('selected_models', [])
+            with st.spinner(f"Downloading {len(selected_models)} models..."):
+                for model in selected_models:
+                    if '/' in model:
+                        model_type, model_name = model.split('/', 1)
+                        integration.storage_manager.download_model(model_type, model_name)
+            st.sidebar.success(f"Downloaded {len(selected_models)} models!")
         
         if st.sidebar.button("🧹 Clean Storage", key="clean_storage"):
             st.sidebar.warning("Storage cleanup initiated...")

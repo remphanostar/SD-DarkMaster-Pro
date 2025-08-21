@@ -1,0 +1,22 @@
+2025-08-20 03:26:21,933 | INFO | Loaded 29 extensions for pre-installation
+2025-08-20 03:26:21,934 | INFO | Session initialized: 17c2ef6f
+2025-08-20 03:26:21,934 | INFO | Installing core dependencies...
+2025-08-20 03:26:21,934 | INFO | Installing 23 dependencies for workspace
+2025-08-20 03:26:23,058 | INFO | Installed batch 1: ['streamlit>=1.28.0', 'gradio>=4.0.0', 'torch>=2.0.0', 'torchvision', 'transformers>=4.30.0']
+2025-08-20 03:26:23,574 | INFO | Installed batch 2: ['diffusers>=0.21.0', 'accelerate', 'xformers', 'opencv-python', 'Pillow>=10.0.0']
+2025-08-20 03:26:24,057 | INFO | Installed batch 3: ['numpy', 'pandas', 'requests', 'tqdm', 'pyyaml']
+2025-08-20 03:26:24,579 | INFO | Installed batch 4: ['jsonschema', 'aiohttp', 'aiofiles', 'psutil', 'matplotlib']
+2025-08-20 03:26:25,042 | INFO | Installed batch 5: ['seaborn', 'plotly', 'rich']
+2025-08-20 03:26:25,043 | INFO | Setting up unified storage...
+2025-08-20 03:26:25,043 | INFO | Setting up unified storage structure...
+2025-08-20 03:26:25,043 | INFO | Created checkpoints directory: /workspace/SD-DarkMaster-Pro/storage/models/Stable-diffusion
+2025-08-20 03:26:25,043 | INFO | Created vae directory: /workspace/SD-DarkMaster-Pro/storage/models/VAE
+2025-08-20 03:26:25,043 | INFO | Created lora directory: /workspace/SD-DarkMaster-Pro/storage/models/Lora
+2025-08-20 03:26:25,043 | INFO | Created embeddings directory: /workspace/SD-DarkMaster-Pro/storage/embeddings
+2025-08-20 03:26:25,043 | INFO | Created hypernetworks directory: /workspace/SD-DarkMaster-Pro/storage/models/hypernetworks
+2025-08-20 03:26:25,043 | INFO | Created controlnet directory: /workspace/SD-DarkMaster-Pro/storage/models/ControlNet
+2025-08-20 03:26:25,043 | INFO | Created upscalers directory: /workspace/SD-DarkMaster-Pro/storage/models/ESRGAN
+2025-08-20 03:26:25,043 | INFO | Creating configuration files...
+2025-08-20 03:26:25,043 | INFO | Created Streamlit config: /workspace/SD-DarkMaster-Pro/configs/streamlit/config.toml
+2025-08-20 03:26:25,044 | INFO | Created Gradio config: /workspace/SD-DarkMaster-Pro/configs/gradio_fallback/interface_config.json
+2025-08-20 03:26:25,044 | INFO | Created environment config: /workspace/SD-DarkMaster-Pro/configs/environment.json
