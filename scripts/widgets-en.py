@@ -9,18 +9,42 @@ import sys
 from pathlib import Path
 
 # Add project root to path
-project_root = Path('/workspace/SD-DarkMaster-Pro')
+try:
+    # Try Colab path first
+    if Path('/content/SD-DarkMaster-Pro').exists():
+        project_root = Path('/content/SD-DarkMaster-Pro')
+    else:
+        project_root = Path('/workspace/SD-DarkMaster-Pro')
+except:
+    project_root = Path('/workspace/SD-DarkMaster-Pro')
+
 sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / 'scripts'))
 
 # Import model dictionaries
-from scripts._models_data import model_list as sd15_models
-from scripts._xl_models_data import model_list as sdxl_models
+try:
+    from _models_data import model_list as sd15_models
+except ImportError:
+    sd15_models = {}
+    
+try:
+    from _xl_models_data import model_list as sdxl_models
+except ImportError:
+    sdxl_models = {}
 
 # Import unified model management
-from unified_model_manager import get_model_manager
-from civitai_browser import get_civitai_browser
+try:
+    from unified_model_manager import get_model_manager
+    from civitai_browser import get_civitai_browser
+except ImportError:
+    print("Warning: Model manager and CivitAI browser not available")
+    get_model_manager = None
+    get_civitai_browser = None
 
-from scripts.setup_central_storage import MODEL_REGISTRY
+try:
+    from setup_central_storage import MODEL_REGISTRY
+except ImportError:
+    MODEL_REGISTRY = {}
 
 # Configure page
 st.set_page_config(
@@ -170,8 +194,11 @@ with tab1:
             st.markdown("#### SD 1.5 Checkpoints")
             
             # Get models from unified manager
-            manager = get_model_manager()
-            all_models = manager.get_all_models('sd15')
+            if get_model_manager:
+                manager = get_model_manager()
+                all_models = manager.get_all_models('sd15')
+            else:
+                all_models = {'sd15': {'dictionary': sd15_models, 'installed': {}}}
             sd15_data = all_models.get('sd15', {})
             
             # Show dictionary models
@@ -374,8 +401,11 @@ with tab1:
         st.markdown("#### Extension Models")
         
         # Get model manager for smart detection
-        manager = get_model_manager()
-        requirements = manager.get_extension_requirements()
+        if get_model_manager:
+            manager = get_model_manager()
+            requirements = manager.get_extension_requirements()
+        else:
+            requirements = {}
         
         if requirements:
             st.info(f"Detected {len(requirements)} extensions that need models")
@@ -407,7 +437,11 @@ with tab2:
         st.markdown("#### CivitAI Browser")
         
         # Get browser instance
-        browser = get_civitai_browser()
+        if get_civitai_browser:
+            browser = get_civitai_browser()
+        else:
+            st.warning("CivitAI browser not available - missing dependencies")
+            browser = None
         
         col1, col2, col3 = st.columns([3, 1, 1])
         with col1:
@@ -424,10 +458,11 @@ with tab2:
             period = st.selectbox("Period", ["AllTime", "Year", "Month", "Week", "Day"])
         
         if st.button("🔍 Search CivitAI", use_container_width=True):
-            with st.spinner("Searching CivitAI..."):
-                # Perform search
-                types = None if model_type == "All" else [model_type]
-                results = browser.search_models(
+            if browser:
+                with st.spinner("Searching CivitAI..."):
+                    # Perform search
+                    types = None if model_type == "All" else [model_type]
+                    results = browser.search_models(
                     query=search,
                     types=types,
                     sort=sort_by,
