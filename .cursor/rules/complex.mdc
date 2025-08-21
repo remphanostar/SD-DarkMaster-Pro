@@ -1,0 +1,225 @@
+---
+description: SD WebUI Repository Architecture and Implementation Standards
+globs: ["**/*.py", "**/*.ipynb", "**/*.js", "**/*.css", "**/*.json", "**/*.md"]
+alwaysApply: true
+---
+
+# SD WebUI Repository Architecture Standards
+
+## 🏛️ FUNDAMENTAL ARCHITECTURE PRINCIPLES
+
+### Notebook Structure (NON-NEGOTIABLE)
+- All code MUST be in /scripts and /modules directories, NOT in notebook cells
+- Notebook MUST have exactly 5 cells with #@title only and %run commands
+- Cell 1 MUST clone repo first then run scripts via bootstrap sequence
+- All complexity hidden in backend scripts, user sees simple interface
+- Keep notebook cells as close to one-liners as possible
+- Enterprise backend with simple frontend
+
+### Required 5-Cell Structure
+```python
+#@title Cell 1: Setup Environment ⚙️
+#@title Cell 2: Native CivitAI Browser & Model Selection 🎛️
+#@title Cell 3: Intelligent Downloads & Storage 📦
+#@title Cell 4: Multi-Platform WebUI Launch 🚀
+#@title Cell 5: Advanced Storage Management 🧹
+```
+
+## 📦 MANDATORY DATA SOURCE INTEGRATION
+
+### Required Base Data Files
+- MUST use `_models_data.py` as base for SD1.5 model selection
+- MUST use `_xl_models_data.py` as base for SDXL model selection  
+- MUST use `_extensions.txt` for extensions pre-installed in WebUIs before launch
+- MUST reference `UI-Guide.md` to select and justify UI framework choice
+- MUST implement `gradio_fix_guide.md` for Gradio link stability
+
+## 🎯 CRITICAL FEATURE REQUIREMENTS
+
+### CivitAI Integration
+- Native CivitAI browser embedded in Cell 2 interface (NOT separate)
+- Grid display with model cards, previews, and metadata
+- One-click download from browser to unified storage
+- Category filtering for Checkpoint/LoRA/VAE/ControlNet types
+- Integration with main selection tabs
+
+### LoRA Integration
+- LoRA selection MUST be in main interface (NOT custom downloads)
+- Multi-select LoRA with checkbox grid and batch operations
+- LoRA database integration with strength settings
+- Effect previews with example images and trigger words
+
+### UI/UX Standards
+- Multi-choice checkboxes replace ALL dropdowns
+- Batch operations (Select All, Clear All, Download Selected)
+- Visual indicators showing selection counts and status
+- Tabbed interfaces with consolidated toolbars
+- Collapsible drawers and modern layouts
+
+## 💾 UNIFIED STORAGE SYSTEM
+
+### Universal Storage Requirements
+- Universal /storage directory for all WebUIs
+- Symbolic link management with automatic creation
+- Cross-WebUI compatibility with automatic path translation
+- Storage visualization with usage meters and organization
+
+## 🌐 PLATFORM COMPATIBILITY
+
+### Supported Platforms
+- Google Colab with Drive integration and GPU optimization
+- Lightning.ai with Studio setup and persistent storage
+- Vast.ai with SSH tunneling and instance management
+- Platform-specific optimizations with automatic adaptation
+- Resource management with platform limits and optimization
+
+## 🔧 TECHNICAL IMPLEMENTATION
+
+### Bootstrap Sequence (Cell 1 CRITICAL)
+- Begin with self-contained Python snippet with ZERO dependencies
+- Intelligently determine correct, writable directory path for project clone
+- Execute `git clone` as ABSOLUTE FIRST ACTION before any imports
+- Update system path immediately after clone succeeds
+- Import and run scripts from /scripts directory ONLY after path update
+
+### Development Standards
+- Use nbformat for immaculate JSON notebook creation
+- Use JupyterLab to run and test notebook cells and validate cell outputs
+- Extension pre-installation system from _extensions.txt before WebUI launch
+- Multi-tunnel system with automatic failover
+- Session persistence with timer tracking and restart recovery
+
+### Script Implementation Requirements
+- **setup.py**: Platform detection, dependency management, unified storage setup, extension pre-installation, configuration creation, timer initialization
+- **widgets-en.py**: Native CivitAI browser, tabbed interface with Models/VAE/LoRA/ControlNet tabs, multi-select system, SDXL switching, widget factory integration, settings persistence
+- **downloading-en.py**: Unified storage downloads, CivitAI integration with metadata, multi-select processing, progress tracking with audio, error handling, storage organization
+- **launch.py**: Multi-platform WebUI launch, unified storage configuration, extension verification, multi-tunnel system, process management, audio notifications
+- **auto-cleaner.py**: Storage visualization, selective cleanup, UI interface with progress, storage optimization
+
+### Error Handling
+- Robust error handling with graceful fallbacks
+- Comprehensive logging and user feedback
+- Audio notifications with mp3 files for completion feedback
+- Progressive enhancement patterns
+
+### Code Organization
+```
+project/
+├── notebook/
+│   └── [ProjectName].ipynb      # 5 cells with #@title only
+├── scripts/
+│   ├── setup.py                # Cell 1: Bootstrap and environment setup
+│   ├── widgets-en.py            # Cell 2: UI with CivitAI browser
+│   ├── downloading-en.py        # Cell 3: Download management
+│   ├── launch.py                # Cell 4: WebUI launch system
+│   └── auto-cleaner.py          # Cell 5: Storage management
+├── modules/
+│   ├── widget_factory.py        # UI component factory
+│   ├── civitai_browser.py       # Native CivitAI integration
+│   ├── unified_storage.py       # Universal storage system
+│   ├── platform_manager.py      # Multi-platform detection
+│   └── error_handler.py         # Comprehensive error handling
+├── assets/
+│   ├── css/ (enhanced styling)
+│   ├── js/ (interactive functionality)
+│   └── audio/ (notification sounds)
+└── storage/ (universal storage system)
+```
+
+## 🎨 UI FRAMEWORK SELECTION
+
+### Framework Decision Process
+- Reference UI-Guide.md for comprehensive framework analysis
+- Choose framework supporting:
+  - Native CivitAI browser implementation
+  - Tabbed interfaces with dynamic content
+  - Multi-select widgets with batch operations
+  - Audio notification integration
+  - Modern responsive design
+
+### Recommended Frameworks from UI-Guide.md
+- **Taipy GUI**: For reactive execution and scenario management
+- **Marimo**: For modern reactive notebooks
+- **Gradio**: For quick WebUI prototyping and integration
+- **Streamlit**: For dashboard-style interfaces
+
+## ✅ SUCCESS CRITERIA
+
+### User Experience Validation
+- User opens notebook → runs 5 cells → gets enterprise platform (ZERO DEBUGGING)
+- Uses provided model databases as base for all selections
+- Pre-installs extensions before WebUI launch
+- Cell 2 displays native CivitAI browser with search and downloads
+- LoRA selection integrated in main interface with multi-select
+- Unified storage works across all WebUIs automatically
+- Audio notifications play when operations complete
+- Platform detection auto-optimizes for target environments
+
+### Code Quality Standards
+- Notebook cells are minimal one-liners calling external scripts
+- All complex logic resides in /scripts and /modules directories
+- Comprehensive error handling with graceful degradation
+- Performance optimization with caching and efficiency
+- Professional documentation and user guides
+
+## 🔑 KEY TERMINOLOGY
+
+### Config UI Components
+- **Config UI**: Single, unified user interface for all pre-launch selections
+- **Custom Data**: Pre-defined, selectable assets from reference files (_models_data.py, _xl_models_data.py)
+- **Custom Downloads**: Assets downloaded on-the-fly via the Config UI
+- **Native CivitAI Browser**: Embedded CivitAI search and download interface in Cell 2
+- **Unified Storage**: Universal storage system working across all WebUIs
+
+### Session Management
+- **Import/Export**: Configuration save/load functionality (JSON/YAML format)
+- **Settings Persistence**: Maintain user preferences across sessions
+- **Scenario Management**: Save different WebUI configuration setups
+
+## 📚 DOCUMENTATION REQUIREMENTS
+
+### Required Files
+- **README.md**: Comprehensive project explanation, features, usage instructions
+- **AI_Implementation_Log.md**: Development process documentation with:
+  - Key decision justifications
+  - Challenges and solutions encountered
+  - Final self-assessment against initial brief
+
+## 🚨 VALIDATION CHECKLIST
+
+### Notebook Structure
+- Exactly 5 cells with #@title only (NO separate markdown cells)
+- Can user run all cells sequentially without debugging?
+- Cells contain minimal one-liner calls to external scripts
+
+### Data Integration
+- Uses _models_data.py as base for SD1.5 models
+- Uses _xl_models_data.py as base for SDXL models
+- Pre-installs extensions from _extensions.txt
+- References UI-Guide.md for framework selection
+
+### Feature Validation
+- Cell 2 includes native CivitAI browser embedded
+- LoRA selection in main interface (not custom downloads)
+- Multi-select checkboxes replace ALL dropdowns
+- Unified storage works across all WebUIs
+- Audio notifications with mp3 files functional
+- Platform detection auto-optimizes for Google Colab/Lightning.ai/Vast.ai
+
+## 🚫 ANTI-PATTERNS TO AVOID
+
+### Never Do These
+- Put complex code in notebook cells (use scripts only)
+- Create notebooks that require debugging (must work immediately)
+- Ignore the provided data sources (mandatory base files)
+- Skip audio notifications (essential UX feature)
+- Create basic UIs (implement sophisticated tabbed interfaces)
+- Ignore unified storage (critical for cross-WebUI compatibility)
+- Skip CivitAI integration (native browser is mandatory)
+- Use single-select dropdowns (implement multi-select checkboxes)
+
+@_models_data.py
+@_xl_models_data.py
+@_extensions.txt
+@UI-Guide.md
+@gradio_fix_guide.md
