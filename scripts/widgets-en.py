@@ -15,6 +15,11 @@ sys.path.insert(0, str(project_root))
 # Import model dictionaries
 from scripts._models_data import model_list as sd15_models
 from scripts._xl_models_data import model_list as sdxl_models
+
+# Import unified model management
+from unified_model_manager import get_model_manager
+from civitai_browser import get_civitai_browser
+
 from scripts.setup_central_storage import MODEL_REGISTRY
 
 # Configure page
@@ -162,19 +167,29 @@ with tab1:
         ])
         
         with tab_models:
+
+        with tab_models:
             st.markdown("#### SD 1.5 Checkpoints")
             
-            # Filter SD1.5 models
-            if sd15_models:
-                # Create 3-column grid
+            # Get models from unified manager
+            manager = get_model_manager()
+            all_models = manager.get_all_models('sd15')
+            sd15_data = all_models.get('sd15', {})
+            
+            # Show dictionary models
+            if sd15_data.get('dictionary'):
                 cols = st.columns(3)
-                for idx, (name, info) in enumerate(sd15_models.items()):
+                for idx, (name, info) in enumerate(sd15_data['dictionary'].items()):
                     with cols[idx % 3]:
+                        # Check if installed
+                        is_installed = name in sd15_data.get('installed', {})
+                        
                         with st.container():
                             st.markdown(f"""
                             <div class="model-card">
                                 <h5>{name[:30]}...</h5>
                                 <p>Size: {info.get('size', 'Unknown')}</p>
+                                <p>{'✅ Installed' if is_installed else '⬇️ Not installed'}</p>
                             </div>
                             """, unsafe_allow_html=True)
                             
@@ -182,15 +197,12 @@ with tab1:
                             with col1:
                                 st.checkbox("Select", key=f"sd15_model_{name}")
                             with col2:
-                                # Check if downloaded
-                                model_path = Path('/workspace/SD-DarkMaster-Pro/storage/models/Stable-diffusion') / name
-                                if model_path.exists():
-                                    st.success("✅")
-                                else:
-                                    st.button("⬇️", key=f"dl_sd15_{name}")
+                                if not is_installed:
+                                    if st.button("Download", key=f"dl_sd15_{name}"):
+                                        st.info(f"Downloading {name}...")
             else:
                 st.info("No SD 1.5 models found")
-        
+
         with tab_loras:
             st.markdown("#### SD 1.5 LoRAs")
             st.info("Drop SD 1.5 LoRAs here")
@@ -358,119 +370,33 @@ with tab1:
         with tab_empty:
             pass  # Empty tab placeholder
     
-    # MISC Section - Extension Models
+    
+    # MISC Section - Extension Models with Smart Detection
     with tab_misc:
+        st.markdown("#### Extension Models")
+        
+        # Get model manager for smart detection
+        manager = get_model_manager()
+        requirements = manager.get_extension_requirements()
+        
+        if requirements:
+            st.info(f"Detected {len(requirements)} extensions that need models")
+            
+            # Show requirements for each extension
+            for ext_name, req_info in requirements.items():
+                with st.expander(f"📦 {ext_name}"):
+                    if req_info.get('required'):
+                        st.warning(f"Required: {', '.join(req_info['required'])}")
+                    if req_info.get('optional'):
+                        st.info(f"Optional: {', '.join(req_info['optional'])}")
+        
         ext_tabs = st.tabs([
             "SAM", 
             "Adetailer", 
             "Upscaler", 
             "Reactor", 
-            "Expandable for future extensions"
+            "Auto-Detected"
         ])
-        
-        with ext_tabs[0]:
-            st.markdown("#### SAM Models")
-            sam_models = MODEL_REGISTRY.get('sam', {})
-            
-            if sam_models:
-                for name, info in sam_models.items():
-                    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-                    with col1:
-                        st.text(name)
-                        st.caption(info.get('description', ''))
-                    with col2:
-                        st.text(info.get('size', ''))
-                    with col3:
-                        model_path = Path('/workspace/SD-DarkMaster-Pro/storage/sam') / name
-                        if model_path.exists():
-                            st.success("✅")
-                        else:
-                            st.text("❌")
-                    with col4:
-                        st.checkbox("Select", key=f"sam_{name}")
-            else:
-                st.info("No SAM models configured")
-        
-        with ext_tabs[1]:
-            st.markdown("#### ADetailer Models")
-            adetailer_models = MODEL_REGISTRY.get('adetailer', {})
-            
-            if adetailer_models:
-                for name, info in adetailer_models.items():
-                    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-                    with col1:
-                        st.text(name)
-                        st.caption(info.get('description', ''))
-                    with col2:
-                        st.text(info.get('size', ''))
-                    with col3:
-                        model_path = Path('/workspace/SD-DarkMaster-Pro/storage/adetailer') / name
-                        if model_path.exists():
-                            st.success("✅")
-                        else:
-                            st.text("❌")
-                    with col4:
-                        st.checkbox("Select", key=f"adet_{name}")
-            else:
-                st.info("No ADetailer models configured")
-        
-        with ext_tabs[2]:
-            st.markdown("#### Upscaler Models")
-            upscaler_models = MODEL_REGISTRY.get('upscalers', {})
-            
-            if upscaler_models:
-                for name, info in upscaler_models.items():
-                    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-                    with col1:
-                        st.text(name)
-                        st.caption(info.get('description', ''))
-                    with col2:
-                        st.text(info.get('size', ''))
-                    with col3:
-                        model_path = Path('/workspace/SD-DarkMaster-Pro/storage/upscalers') / name
-                        if model_path.exists():
-                            st.success("✅")
-                        else:
-                            st.text("❌")
-                    with col4:
-                        st.checkbox("Select", key=f"upscale_{name}")
-            else:
-                st.info("No Upscaler models configured")
-        
-        with ext_tabs[3]:
-            st.markdown("#### Reactor Models")
-            reactor_models = MODEL_REGISTRY.get('reactor', {})
-            
-            if reactor_models:
-                for name, info in reactor_models.items():
-                    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-                    with col1:
-                        st.text(name)
-                        st.caption(info.get('description', ''))
-                    with col2:
-                        st.text(info.get('size', ''))
-                    with col3:
-                        model_path = Path('/workspace/SD-DarkMaster-Pro/storage/reactor') / name
-                        if model_path.exists():
-                            st.success("✅")
-                        else:
-                            st.text("❌")
-                    with col4:
-                        st.checkbox("Select", key=f"reactor_{name}")
-            else:
-                st.info("No Reactor models configured")
-        
-        with ext_tabs[4]:
-            st.markdown("#### Future Extensions")
-            st.info("This tab is expandable for future extension models")
-            st.markdown("""
-            Potential future extensions:
-            - AnimateDiff models
-            - IP-Adapter models
-            - InstantID models
-            - FaceID models
-            - Custom trained models
-            """)
 
 with tab2:
     st.markdown("### 🔍 Model Browser")
@@ -478,28 +404,91 @@ with tab2:
     # Browser tabs
     browser_tabs = st.tabs(["CivitAI", "HuggingFace", "Local Files"])
     
+        
     with browser_tabs[0]:
         st.markdown("#### CivitAI Browser")
+        
+        # Get browser instance
+        browser = get_civitai_browser()
         
         col1, col2, col3 = st.columns([3, 1, 1])
         with col1:
             search = st.text_input("Search models", placeholder="e.g., anime, realistic, cartoon")
         with col2:
-            model_type = st.selectbox("Type", ["All", "Checkpoint", "LoRA", "VAE", "TextualInversion"])
+            model_type = st.selectbox("Type", ["All", "Checkpoint", "LORA", "VAE", "TextualInversion", "Controlnet"])
         with col3:
-            st.checkbox("Include NSFW")
+            nsfw = st.checkbox("Include NSFW")
         
         col1, col2 = st.columns(2)
         with col1:
             sort_by = st.selectbox("Sort by", ["Most Downloaded", "Highest Rated", "Most Recent"])
         with col2:
-            period = st.selectbox("Period", ["All Time", "Year", "Month", "Week", "Day"])
+            period = st.selectbox("Period", ["AllTime", "Year", "Month", "Week", "Day"])
         
         if st.button("🔍 Search CivitAI", use_container_width=True):
             with st.spinner("Searching CivitAI..."):
-                st.info(f"Searching for: {search}")
-                # Results would go here
-    
+                # Perform search
+                types = None if model_type == "All" else [model_type]
+                results = browser.search_models(
+                    query=search,
+                    types=types,
+                    sort=sort_by,
+                    period=period,
+                    nsfw=nsfw,
+                    limit=20
+                )
+                
+                if results:
+                    st.success(f"Found {len(results)} models")
+                    
+                    # Display results
+                    for model in results:
+                        with st.expander(f"📦 {model['name']} ({model['type']})"):
+                            col1, col2 = st.columns([2, 1])
+                            
+                            with col1:
+                                st.text(f"Creator: {model['creator']}")
+                                st.text(f"Base Model: {model['version']['base_model']}")
+                                st.text(f"Size: {model['version']['size_kb'] / 1024:.1f} MB")
+                                st.text(f"Downloads: {model['download_count']:,}")
+                                
+                                if st.button(f"⬇️ Download", key=f"dl_civitai_{model['id']}"):
+                                    with st.spinner(f"Downloading {model['name']}..."):
+                                        if browser.download_model(model):
+                                            st.success("Downloaded successfully!")
+                                            # Add to unified manager
+                                            manager = get_model_manager()
+                                            manager.add_downloaded_model({
+                                                'name': model['name'],
+                                                'type': model['type'].lower(),
+                                                'subtype': model['version']['base_model'].lower().replace(' ', ''),
+                                                'url': model['version']['download_url'],
+                                                'size': model['version']['size_kb'] * 1024,
+                                                'source': 'civitai',
+                                                'metadata': model
+                                            })
+                                        else:
+                                            st.error("Download failed")
+                            
+                            with col2:
+                                # Show preview image if available
+                                images = model['version'].get('images', [])
+                                if images and len(images) > 0:
+                                    img_url = images[0].get('url', '')
+                                    if img_url:
+                                        st.image(img_url, use_column_width=True)
+                else:
+                    st.warning("No models found")
+        
+        # Show trending models
+        st.markdown("---")
+        st.markdown("#### 🔥 Trending Today")
+        
+        if st.button("Load Trending", use_container_width=True):
+            trending = browser.get_trending_models(period="Day", limit=5)
+            for model in trending:
+                st.text(f"• {model['name']} - {model['download_count']:,} downloads")
+
     with browser_tabs[1]:
         st.markdown("#### HuggingFace Hub")
         
