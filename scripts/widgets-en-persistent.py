@@ -196,7 +196,7 @@ def render_model_grid(models, prefix, num_cols=2):
                 """, unsafe_allow_html=True)
                 
                 # Invisible button for click handling
-                if st.button("Select", key=f"btn_{model_id}", use_container_width=True, label_visibility="collapsed"):
+                if st.button("", key=f"btn_{model_id}", use_container_width=True):
                     if model_id in st.session_state.selected_models:
                         st.session_state.selected_models.remove(model_id)
                         st.session_state.output_log.append(f"[-] Deselected: {name}")

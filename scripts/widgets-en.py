@@ -231,7 +231,8 @@ def render_model_button(name, model_id, size="Unknown"):
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("Select", key=f"btn_{model_id}", use_container_width=True, label_visibility="collapsed"):
+    # Use empty label to make button invisible but clickable
+    if st.button("", key=f"btn_{model_id}", use_container_width=True):
         if model_id in st.session_state.selected_models:
             st.session_state.selected_models.remove(model_id)
             st.session_state.output_log.append(f"[-] Deselected: {name}")
