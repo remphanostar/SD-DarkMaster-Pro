@@ -18,11 +18,12 @@ import aiohttp
 import aiofiles
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
+from dataclasses import dataclass, field
 import subprocess
 import time
 import threading
 import queue
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import logging
 from tqdm import tqdm
@@ -30,6 +31,9 @@ import requests
 from urllib.parse import urlparse, unquote
 import psutil
 import platform
+import shutil
+import urllib.request
+import urllib.parse
 
 # Add project root to path
 try:
