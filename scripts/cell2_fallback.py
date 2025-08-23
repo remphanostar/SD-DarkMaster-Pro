@@ -8,9 +8,9 @@ import ipywidgets as widgets
 from IPython.display import display, HTML, clear_output
 import json
 import os
+import sys
 from pathlib import Path
 from datetime import datetime
-import sys
 
 # Get project root
 try:
