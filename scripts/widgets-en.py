@@ -496,30 +496,90 @@ with tab_settings:
 st.markdown("---")
 st.markdown("### 📥 Download Queue")
 
-queue_col1, queue_col2 = st.columns([4, 1])
+queue_col1, queue_col2, queue_col3 = st.columns([3, 1, 1])
 
 with queue_col1:
     if st.session_state.selected_models:
         # Show progress bar
         progress = st.progress(0, text="Ready to download...")
         
-        # Show selected models
-        st.markdown(f"**Selected Models:** {len(st.session_state.selected_models)}")
+        # Show selected models count by type
+        sd15_count = len([m for m in st.session_state.selected_models if m.startswith('sd15_')])
+        sdxl_count = len([m for m in st.session_state.selected_models if m.startswith('sdxl_')])
+        pony_count = len([m for m in st.session_state.selected_models if m.startswith('pony_')])
+        illustrious_count = len([m for m in st.session_state.selected_models if m.startswith('illustrious_')])
+        misc_count = len([m for m in st.session_state.selected_models if m.startswith('misc_')])
+        
+        col_counts = st.columns(5)
+        with col_counts[0]:
+            st.metric("SD1.5", sd15_count)
+        with col_counts[1]:
+            st.metric("SDXL", sdxl_count)
+        with col_counts[2]:
+            st.metric("Pony", pony_count)
+        with col_counts[3]:
+            st.metric("Illustrious", illustrious_count)
+        with col_counts[4]:
+            st.metric("Misc", misc_count)
         
         # Sample queue display
         with st.expander("View Queue", expanded=False):
-            for model in list(st.session_state.selected_models)[:5]:
-                st.markdown(f"- {model}")
+            for model in list(st.session_state.selected_models)[:10]:
+                model_type = model.split('_')[0].upper()
+                st.markdown(f"- [{model_type}] {model}")
     else:
         st.info("No models selected for download")
 
 with queue_col2:
-    if st.button("⬇️ Download All", key="download_all", use_container_width=True, type="primary", 
+    # Base Model Lock dropdown
+    st.markdown("#### 🔒 Base Model Lock")
+    base_model_lock = st.selectbox(
+        "Filter models to load",
+        ["None (Load All)", "SD 1.5 Only", "SDXL Only", "Pony Only", "Illustrious Only", "Misc Only"],
+        key="base_model_lock",
+        help="Lock the WebUI to only load models from a specific base architecture. This ensures compatibility and prevents mixing incompatible model types."
+    )
+    
+    # Calculate what will actually be loaded based on the lock
+    if base_model_lock != "None (Load All)":
+        if "SD 1.5" in base_model_lock:
+            filtered_models = [m for m in st.session_state.selected_models if m.startswith('sd15_')]
+        elif "SDXL" in base_model_lock:
+            filtered_models = [m for m in st.session_state.selected_models if m.startswith('sdxl_')]
+        elif "Pony" in base_model_lock:
+            filtered_models = [m for m in st.session_state.selected_models if m.startswith('pony_')]
+        elif "Illustrious" in base_model_lock:
+            filtered_models = [m for m in st.session_state.selected_models if m.startswith('illustrious_')]
+        elif "Misc" in base_model_lock:
+            filtered_models = [m for m in st.session_state.selected_models if m.startswith('misc_')]
+        else:
+            filtered_models = list(st.session_state.selected_models)
+        
+        if len(filtered_models) != len(st.session_state.selected_models):
+            st.caption(f"⚠️ Will load {len(filtered_models)} of {len(st.session_state.selected_models)} selected")
+    else:
+        filtered_models = list(st.session_state.selected_models)
+
+with queue_col3:
+    # Determine button text based on lock
+    if base_model_lock != "None (Load All)" and filtered_models:
+        button_text = f"⬇️ Download {base_model_lock.replace(' Only', '')}"
+        models_to_download = len(filtered_models)
+    else:
+        button_text = "⬇️ Download All"
+        models_to_download = len(st.session_state.selected_models)
+    
+    if st.button(button_text, key="download_all", use_container_width=True, type="primary", 
                  disabled=len(st.session_state.selected_models) == 0):
-        add_console_output(f"Starting download of {len(st.session_state.selected_models)} models...")
+        if base_model_lock != "None (Load All)":
+            add_console_output(f"Starting download of {models_to_download} {base_model_lock.replace(' Only', '')} models...")
+            add_console_output(f"Base Model Lock active: {base_model_lock}")
+        else:
+            add_console_output(f"Starting download of {models_to_download} models (all types)...")
+        
         with st.spinner("Downloading..."):
             time.sleep(2)  # Simulate download
-        st.success("Download started!")
+        st.success(f"Download started for {models_to_download} models!")
 
 # Add initialization message
 if len(st.session_state.console_output) == 0:
