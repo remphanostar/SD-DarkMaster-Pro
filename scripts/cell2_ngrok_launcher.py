@@ -39,60 +39,138 @@ platform = 'colab' if 'google.colab' in sys.modules else 'local'
 print(f"🖥️ Platform detected: {platform}")
 
 if platform == 'colab':
-    print("🔧 Setting up ngrok for Colab...")
+    print("\n🔧 Installing ngrok (showing all output)...")
+    print("-" * 60)
+    
+    # Install ngrok with full output
+    install_result = subprocess.run(
+        [sys.executable, '-m', 'pip', 'install', 'pyngrok', '-v'],
+        capture_output=False,  # Show output directly
+        text=True
+    )
+    
+    print("-" * 60)
+    print(f"✅ Ngrok installation completed with exit code: {install_result.returncode}")
+    
     try:
-        # Install and setup ngrok
-        subprocess.run([sys.executable, '-m', 'pip', 'install', 'pyngrok', '-q'], check=True)
         from pyngrok import ngrok
         
         # Set auth token
+        print("\n🔑 Setting ngrok auth token...")
         ngrok.set_auth_token("2tjxIXifSaGR3dMhkvhk6sZqbGo_6ZfBZLZHMbtAjfRmfoDW5")
         print("✅ Ngrok configured")
         
         # Kill old streamlit
-        print("🔄 Cleaning up old processes...")
-        subprocess.run(['pkill', '-f', 'streamlit'], capture_output=True)
+        print("\n🔄 Cleaning up old processes...")
+        kill_result = subprocess.run(['pkill', '-f', 'streamlit'], capture_output=True, text=True)
+        print(f"Kill command output: {kill_result.stdout}")
+        if kill_result.stderr:
+            print(f"Kill command errors: {kill_result.stderr}")
         time.sleep(2)
         
-        # Start streamlit
-        print("🚀 Starting Streamlit dashboard...")
-        cmd = f"streamlit run {scripts_dir}/widgets-en.py --server.port 8501 --server.headless true"
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Start streamlit with full output
+        print("\n🚀 Starting Streamlit dashboard (showing all output)...")
+        print("-" * 60)
         
-        # Give it time to start
-        print("⏳ Waiting for server to start...")
-        time.sleep(8)
+        cmd = [
+            sys.executable, '-m', 'streamlit', 'run',
+            str(scripts_dir / 'widgets-en.py'),
+            '--server.port', '8501',
+            '--server.headless', 'true',
+            '--logger.level', 'info'  # Show all logs
+        ]
+        
+        print(f"Command: {' '.join(cmd)}")
+        
+        # Start process and show output in real-time
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True
+        )
+        
+        # Read output for a few seconds
+        print("\nStreamlit startup output:")
+        start_time = time.time()
+        while time.time() - start_time < 10:  # Show output for 10 seconds
+            line = process.stdout.readline()
+            if line:
+                print(f"  {line.rstrip()}")
+            if process.poll() is not None:
+                print(f"❌ Process exited with code: {process.returncode}")
+                break
+        
+        print("-" * 60)
         
         # Check if process is still running
         if process.poll() is not None:
-            stdout, stderr = process.communicate()
-            print(f"❌ Streamlit failed to start!")
-            print(f"STDOUT: {stdout.decode()}")
-            print(f"STDERR: {stderr.decode()}")
+            print(f"❌ Streamlit failed to start! Exit code: {process.returncode}")
+            # Get any remaining output
+            remaining_output = process.stdout.read()
+            if remaining_output:
+                print("Remaining output:")
+                print(remaining_output)
             sys.exit(1)
         
         # Create tunnel
-        print("🌐 Creating public URL...")
+        print("\n🌐 Creating public URL with ngrok...")
         public_url = ngrok.connect(8501, "http")
         
         print("\n" + "="*60)
         print(f"✅ Dashboard ready at: {public_url}")
         print("="*60)
-        print("\n📋 Next steps:")
+        
+        # Also display as HTML link
+        from IPython.display import display, HTML
+        display(HTML(f'''
+        <div style="background: #10B981; padding: 20px; border-radius: 10px; text-align: center;">
+            <a href="{public_url}" target="_blank" style="color: white; font-size: 18px; text-decoration: none;">
+                🚀 Click here to open the Dashboard
+            </a>
+        </div>
+        '''))
+        
+        print("\n📋 Instructions:")
         print("1. Click the link above to open the dashboard")
         print("2. Configure your settings")
         print("3. Click 'Save All Settings' when done")
         print("4. Then run Cell 3 to download models")
         
+        # Keep showing Streamlit output
+        print("\n📊 Streamlit server output (live):")
+        print("-" * 60)
+        while True:
+            line = process.stdout.readline()
+            if line:
+                print(f"  {line.rstrip()}")
+            else:
+                time.sleep(0.1)
+            if process.poll() is not None:
+                print(f"\n❌ Streamlit process ended with code: {process.returncode}")
+                break
+        
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"\n❌ Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         print("\n💡 Try using Cell 2b (fallback) instead if this doesn't work")
         
 else:
-    print("🖥️ Running locally...")
+    print("\n🖥️ Running Streamlit locally (showing all output)...")
+    print("-" * 60)
+    
+    cmd = [sys.executable, str(scripts_dir / 'widgets-en.py')]
+    print(f"Command: {' '.join(cmd)}")
+    
     try:
-        # For local, just run directly
-        subprocess.run([sys.executable, str(scripts_dir / 'widgets-en.py')], check=True)
+        # Run with full output
+        result = subprocess.run(cmd, capture_output=False, text=True)
+        print(f"\nStreamlit exited with code: {result.returncode}")
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"\n❌ Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         print("\n💡 Try using Cell 2b (fallback) instead")
