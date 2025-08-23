@@ -99,15 +99,15 @@ def home_page():
     
     with col1:
         if st.button("🚀 Quick Setup", use_container_width=True):
-            st.switch_page("pages/setup.py")
+            setup_page()
     
     with col2:
         if st.button("📦 Browse Models", use_container_width=True):
-            st.switch_page("pages/models.py")
+            models_page()
     
     with col3:
         if st.button("🎯 Launch WebUI", use_container_width=True):
-            st.switch_page("pages/launch.py")
+            launch_page()
     
     # Activity log
     st.markdown("### Recent Activity")
