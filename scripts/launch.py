@@ -805,6 +805,33 @@ def main():
     print("🎨 Multi-Platform Launch System")
     print("="*60 + "\n")
     
+    # Check if we should use the anxiety launcher
+    session_file = Path(project_root) / 'configs' / 'session.json'
+    use_anxiety_launcher = False
+    
+    if session_file.exists():
+        try:
+            with open(session_file, 'r') as f:
+                session_config = json.load(f)
+                use_anxiety_launcher = session_config.get('launch_settings', {}).get('use_anxiety_launcher', False)
+                install_method = session_config.get('install_method', 'git')
+                
+                if use_anxiety_launcher or install_method == 'package':
+                    print("📦 Using AnxietySolo Package Method (Fast Setup)")
+                    print("="*60 + "\n")
+                    
+                    # Import and use the anxiety launcher
+                    try:
+                        from scripts.launch_anxiety_method import main as anxiety_main
+                        anxiety_main()
+                        return
+                    except ImportError:
+                        print("⚠️ AnxietySolo launcher not found, falling back to standard method")
+        except Exception as e:
+            print(f"⚠️ Error loading session config: {e}")
+    
+    # Default to standard launcher
+    print("📂 Using Git Clone Method (Standard Setup)")
     render_launch_interface()
 
 if __name__ == "__main__":

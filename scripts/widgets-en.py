@@ -595,6 +595,18 @@ save_col1, save_col2, save_col3 = st.columns([2, 1, 1])
 with save_col1:
     st.markdown("### 💾 Save Configuration")
     st.caption("Save your selections for Cell 3 (Downloads) and Cell 4 (Launch)")
+    
+    # Installation method selection
+    install_method = st.radio(
+        "Installation Method",
+        ["Package Method (Fast)", "Git Clone (Standard)"],
+        index=0,
+        help="""
+        **Package Method**: Uses AnxietySolo's pre-configured packages (5-10 min setup, 5.2GB shared venv)
+        **Git Clone**: Standard git installation (30-45 min setup, creates new venv)
+        """,
+        horizontal=True
+    )
 
 with save_col2:
     # WebUI selection for launch config
@@ -604,6 +616,14 @@ with save_col2:
         key="webui_type_selection",
         help="Select which WebUI to launch in Cell 4"
     )
+    
+    # Show package availability
+    if install_method == "Package Method (Fast)":
+        package_available = webui_type in ["Forge", "ComfyUI", "A1111", "ReForge"]
+        if package_available:
+            st.success("✅ Package available")
+        else:
+            st.warning("⚠️ Package not ready, will use git clone")
 
 with save_col3:
     if st.button("💾 Save All Settings", type="primary", use_container_width=True):
@@ -611,6 +631,7 @@ with save_col3:
         config = {
             "timestamp": datetime.now().isoformat(),
             "platform": st.session_state.environment_info['platform'],
+            "install_method": "package" if "Package" in install_method else "git",
             "selected_models": list(st.session_state.selected_models),
             "selected_loras": list(st.session_state.selected_loras),
             "selected_vae": list(st.session_state.selected_vae),
@@ -627,7 +648,8 @@ with save_col3:
                 "share": False,
                 "api": True,
                 "tunnel": "none",
-                "theme": "dark"
+                "theme": "dark",
+                "use_anxiety_launcher": install_method == "Package Method (Fast)"
             }
         }
         
@@ -642,7 +664,7 @@ with save_col3:
             st.success("✅ Configuration saved successfully!")
             add_console_output(f"Configuration saved to: {config_file}")
             add_console_output(f"Models: {len(config['selected_models'])}, LoRAs: {len(config['selected_loras'])}, VAEs: {len(config['selected_vae'])}, ControlNets: {len(config['selected_controlnet'])}")
-            add_console_output(f"WebUI: {webui_type}, Base Lock: {base_model_lock}")
+            add_console_output(f"WebUI: {webui_type}, Method: {install_method}, Base Lock: {base_model_lock}")
             
             # Show saved config details
             with st.expander("View Saved Configuration", expanded=True):
@@ -658,8 +680,12 @@ st.info("""
 **Next Steps:**
 1. Click **'💾 Save All Settings'** to save your configuration
 2. Run **Cell 3** to download selected models using aria2c
-3. Run **Cell 4** to launch your selected WebUI
+3. Run **Cell 4** to launch your selected WebUI (will use your chosen installation method)
 4. Run **Cell 5** for storage management and cleanup
+
+**Installation Methods:**
+- **Package Method**: 5-10 min setup, pre-configured with 5.2GB shared venv (recommended)
+- **Git Clone**: 30-45 min setup, downloads everything fresh
 """)
 
 # Display current session status

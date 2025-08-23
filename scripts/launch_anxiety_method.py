@@ -428,6 +428,23 @@ def main():
     
     manager = AnxietyPackageManager()
     
+    # Try to load from session.json
+    session_file = project_root / 'configs' / 'session.json'
+    auto_launch = False
+    selected_webui = None
+    
+    if session_file.exists():
+        try:
+            with open(session_file, 'r') as f:
+                session_config = json.load(f)
+                selected_webui = session_config.get('webui_type', None)
+                if selected_webui:
+                    print(f"📄 Loaded configuration from session.json")
+                    print(f"🎯 Selected WebUI: {selected_webui}")
+                    auto_launch = True
+        except Exception as e:
+            print(f"⚠️ Error loading session config: {e}")
+    
     # Show available WebUIs
     print("Available WebUIs:")
     for webui_type, config in WEBUI_PACKAGES.items():
@@ -437,6 +454,35 @@ def main():
             print(f"    → {config['description']}")
     
     print("\n" + "-"*60 + "\n")
+    
+    # Auto-launch if configured
+    if auto_launch and selected_webui:
+        print(f"\n🚀 Auto-launching {selected_webui}...")
+        
+        # Check if installed
+        webui_path = manager.webuis_dir / selected_webui
+        if not webui_path.exists():
+            print(f"📦 Installing {selected_webui} first...")
+            if not manager.install_webui(selected_webui):
+                print("❌ Installation failed, switching to interactive mode")
+                auto_launch = False
+        
+        if auto_launch:
+            try:
+                # Get port from config
+                port = session_config.get('launch_settings', {}).get('port', None)
+                process = manager.launch_webui(selected_webui, port)
+                print(f"✅ {selected_webui} launched successfully!")
+                print(f"🌐 WebUI running with PID: {process.pid}")
+                print("\nPress Ctrl+C to stop the WebUI")
+                process.wait()
+            except KeyboardInterrupt:
+                print("\n⏹️ Stopping WebUI...")
+                return
+            except Exception as e:
+                print(f"❌ Launch failed: {e}")
+                print("Switching to interactive mode...")
+                auto_launch = False
     
     # Interactive mode
     while True:
