@@ -12,6 +12,7 @@ import platform
 import subprocess
 from datetime import datetime
 import time
+from pathlib import Path
 
 # Add project root to path for imports
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -586,3 +587,90 @@ if len(st.session_state.console_output) == 0:
     add_console_output("SD-DarkMaster-Pro initialized successfully")
     add_console_output(f"Platform detected: {st.session_state.environment_info['platform']}")
     add_console_output("Ready for model selection...")
+
+# Add Save Configuration Button at the bottom
+st.markdown("---")
+save_col1, save_col2, save_col3 = st.columns([2, 1, 1])
+
+with save_col1:
+    st.markdown("### 💾 Save Configuration")
+    st.caption("Save your selections for Cell 3 (Downloads) and Cell 4 (Launch)")
+
+with save_col2:
+    # WebUI selection for launch config
+    webui_type = st.selectbox(
+        "WebUI Type",
+        ["Forge", "ComfyUI", "A1111", "ReForge", "SD-Next"],
+        key="webui_type_selection",
+        help="Select which WebUI to launch in Cell 4"
+    )
+
+with save_col3:
+    if st.button("💾 Save All Settings", type="primary", use_container_width=True):
+        # Prepare configuration data
+        config = {
+            "timestamp": datetime.now().isoformat(),
+            "platform": st.session_state.environment_info['platform'],
+            "selected_models": list(st.session_state.selected_models),
+            "selected_loras": list(st.session_state.selected_loras),
+            "selected_vae": list(st.session_state.selected_vae),
+            "selected_controlnet": list(st.session_state.selected_controlnet),
+            "base_model_lock": base_model_lock,
+            "webui_type": webui_type,
+            "download_settings": {
+                "use_aria2c": True,
+                "parallel_downloads": 4,
+                "resume_downloads": True
+            },
+            "launch_settings": {
+                "port": 7860,
+                "share": False,
+                "api": True,
+                "tunnel": "none",
+                "theme": "dark"
+            }
+        }
+        
+        # Save to session.json
+        config_file = Path(project_root) / 'configs' / 'session.json'
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+            
+            st.success("✅ Configuration saved successfully!")
+            add_console_output(f"Configuration saved to: {config_file}")
+            add_console_output(f"Models: {len(config['selected_models'])}, LoRAs: {len(config['selected_loras'])}, VAEs: {len(config['selected_vae'])}, ControlNets: {len(config['selected_controlnet'])}")
+            add_console_output(f"WebUI: {webui_type}, Base Lock: {base_model_lock}")
+            
+            # Show saved config details
+            with st.expander("View Saved Configuration", expanded=True):
+                st.json(config)
+                
+        except Exception as e:
+            st.error(f"❌ Failed to save configuration: {str(e)}")
+            add_console_output(f"Error saving config: {str(e)}")
+
+# Add info about next steps
+st.markdown("---")
+st.info("""
+**Next Steps:**
+1. Click **'💾 Save All Settings'** to save your configuration
+2. Run **Cell 3** to download selected models using aria2c
+3. Run **Cell 4** to launch your selected WebUI
+4. Run **Cell 5** for storage management and cleanup
+""")
+
+# Display current session status
+if os.path.exists(os.path.join(project_root, 'configs', 'session.json')):
+    st.sidebar.markdown("### 📄 Current Session")
+    try:
+        with open(os.path.join(project_root, 'configs', 'session.json'), 'r') as f:
+            session_data = json.load(f)
+        st.sidebar.success("Session config loaded")
+        st.sidebar.caption(f"Last saved: {session_data.get('timestamp', 'Unknown')}")
+    except:
+        st.sidebar.warning("Session config exists but couldn't be loaded")
+else:
+    st.sidebar.info("No saved session config yet")

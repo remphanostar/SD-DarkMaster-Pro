@@ -626,10 +626,33 @@ class EnhancedDownloadInterface:
     
     def render_interface(self):
         """Render download interface"""
+        # Load session config if available
+        self._load_session_selections()
+        
         if self.framework == 'streamlit':
             self._render_streamlit_interface()
         else:
             self._render_gradio_interface()
+    
+    def _load_session_selections(self):
+        """Load selections from session.json if available"""
+        session_file = project_root / 'configs' / 'session.json'
+        if session_file.exists():
+            try:
+                with open(session_file, 'r') as f:
+                    session_data = json.load(f)
+                
+                # Update session state with saved selections
+                if self.framework == 'streamlit':
+                    import streamlit as st
+                    st.session_state['selected_models'] = session_data.get('selected_models', [])
+                    st.session_state['selected_loras'] = session_data.get('selected_loras', [])
+                    st.session_state['selected_vae'] = session_data.get('selected_vae', [])
+                    st.session_state['selected_controlnet'] = session_data.get('selected_controlnet', [])
+                    
+                logger.info(f"Loaded session config: {len(session_data.get('selected_models', []))} models")
+            except Exception as e:
+                logger.error(f"Failed to load session config: {e}")
     
     def _render_streamlit_interface(self):
         """Render enhanced Streamlit interface"""

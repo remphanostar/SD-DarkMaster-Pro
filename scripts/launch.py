@@ -591,20 +591,43 @@ class WebUILauncher:
 
 def render_launch_interface():
     """Render launch interface"""
+    # Load session config if available
+    session_config = load_session_config()
+    
     try:
         import streamlit as st
-        render_streamlit_interface()
+        render_streamlit_interface(session_config)
     except:
-        render_gradio_interface()
+        render_gradio_interface(session_config)
 
-def render_streamlit_interface():
+def load_session_config():
+    """Load configuration from session.json"""
+    session_file = Path(project_root) / 'configs' / 'session.json'
+    if session_file.exists():
+        try:
+            with open(session_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load session config: {e}")
+    return {}
+
+def render_streamlit_interface(session_config=None):
     """Render Streamlit launch interface"""
     import streamlit as st
+    
+    if session_config is None:
+        session_config = {}
     
     st.markdown("""
     # 🚀 Multi-Platform WebUI Launch
     ### Launch any WebUI with platform-specific optimizations
     """)
+    
+    # Show session config status
+    if session_config:
+        st.success(f"✅ Loaded session config - WebUI: {session_config.get('webui_type', 'Not set')}")
+    else:
+        st.info("ℹ️ No saved session config found - using defaults")
     
     launcher = WebUILauncher()
     
@@ -612,9 +635,18 @@ def render_streamlit_interface():
     col1, col2 = st.columns(2)
     
     with col1:
+        # Get default from session config
+        default_webui = session_config.get('webui_type', 'A1111')
+        webui_options = list(WEBUI_CONFIGS.keys())
+        
+        # Ensure default is in options
+        if default_webui not in webui_options:
+            default_webui = webui_options[0]
+            
         webui_type = st.selectbox(
             "Select WebUI",
-            list(WEBUI_CONFIGS.keys()),
+            webui_options,
+            index=webui_options.index(default_webui),
             key="webui_type"
         )
         
@@ -693,9 +725,12 @@ def render_streamlit_interface():
         if status['uptime']:
             st.info(f"Uptime: {status['uptime']:.0f} seconds")
 
-def render_gradio_interface():
+def render_gradio_interface(session_config=None):
     """Render Gradio launch interface (fallback)"""
     import gradio as gr
+    
+    if session_config is None:
+        session_config = {}
     
     launcher = WebUILauncher()
     
