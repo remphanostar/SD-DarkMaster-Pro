@@ -657,6 +657,7 @@ class EnhancedDownloadInterface:
                     st.session_state['selected_loras'] = session_data.get('selected_loras', [])
                     st.session_state['selected_vae'] = session_data.get('selected_vae', [])
                     st.session_state['selected_controlnet'] = session_data.get('selected_controlnet', [])
+                    st.session_state['civitai_downloads'] = session_data.get('civitai_downloads', [])
                     
                 logger.info(f"Loaded session config: {len(session_data.get('selected_models', []))} models")
             except Exception as e:
@@ -727,8 +728,11 @@ class EnhancedDownloadInterface:
         # Get selections from session
         selected_models = st.session_state.get('selected_models', [])
         selected_loras = st.session_state.get('selected_loras', [])
+        selected_vae = st.session_state.get('selected_vae', None)
+        selected_controlnet = st.session_state.get('selected_controlnet', [])
+        civitai_downloads = st.session_state.get('civitai_downloads', [])
         
-        if selected_models or selected_loras:
+        if selected_models or selected_loras or selected_vae or selected_controlnet or civitai_downloads:
             st.markdown("#### Selected Items")
             
             # Display selections
@@ -741,6 +745,19 @@ class EnhancedDownloadInterface:
                 with st.expander(f"🎨 LoRAs ({len(selected_loras)})"):
                     for lora in selected_loras:
                         st.text(f"• {lora}")
+            
+            if selected_vae:
+                st.info(f"🎭 VAE: {selected_vae}")
+            
+            if selected_controlnet:
+                with st.expander(f"🎮 ControlNet ({len(selected_controlnet)})"):
+                    for cn in selected_controlnet:
+                        st.text(f"• {cn}")
+            
+            if civitai_downloads:
+                with st.expander(f"🌐 CivitAI Queue ({len(civitai_downloads)})"):
+                    for item in civitai_downloads:
+                        st.text(f"• {item['name']} → {item['storage_path']}")
             
             # Download options
             col1, col2 = st.columns(2)

@@ -29,21 +29,14 @@ except NameError:
     else:
         project_root = os.path.join(os.path.expanduser('~'), 'SD-DarkMaster-Pro')
         
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+project_root = Path(project_root)
+sys.path.insert(0, str(project_root))
 
-# Try to import model data
-try:
-    from scripts._models_data import model_list as sd15_models
-except ImportError:
-    sd15_models = {}
-    
-try:
-    from scripts._xl_models_data import model_list as sdxl_models
-except ImportError:
-    sdxl_models = {}
+# Import model data
+from scripts._models_data import model_list as sd15_models, vae_list as sd15_vae_list, controlnet_list as sd15_controlnet_list, lora_list as sd15_lora_list
+from scripts._xl_models_data import model_list as sdxl_models, vae_list as sdxl_vae_list, controlnet_list as sdxl_controlnet_list, lora_list as sdxl_lora_list
 
-# Page config
+# Initialize Streamlit page config
 st.set_page_config(
     page_title="SD-DarkMaster-Pro Dashboard",
     page_icon="⭐",
@@ -212,6 +205,12 @@ st.markdown("""
 # Initialize session state
 if 'selected_models' not in st.session_state:
     st.session_state.selected_models = set()
+if 'selected_loras' not in st.session_state:
+    st.session_state.selected_loras = set()
+if 'selected_vae' not in st.session_state:
+    st.session_state.selected_vae = None
+if 'selected_controlnet' not in st.session_state:
+    st.session_state.selected_controlnet = set()
 if 'console_output' not in st.session_state:
     st.session_state.console_output = []
 if 'download_queue' not in st.session_state:
@@ -276,6 +275,26 @@ def toggle_model(model_id):
     else:
         st.session_state.selected_models.add(model_id)
         add_console_output(f"Selected: {model_id}")
+
+# Toggle LoRA selection
+def toggle_lora(lora_id):
+    """Toggle LoRA selection"""
+    if lora_id in st.session_state.selected_loras:
+        st.session_state.selected_loras.remove(lora_id)
+        add_console_output(f"Deselected LoRA: {lora_id}")
+    else:
+        st.session_state.selected_loras.add(lora_id)
+        add_console_output(f"Selected LoRA: {lora_id}")
+
+# Toggle ControlNet selection
+def toggle_controlnet(cn_id):
+    """Toggle ControlNet selection"""
+    if cn_id in st.session_state.selected_controlnet:
+        st.session_state.selected_controlnet.remove(cn_id)
+        add_console_output(f"Deselected ControlNet: {cn_id}")
+    else:
+        st.session_state.selected_controlnet.add(cn_id)
+        add_console_output(f"Selected ControlNet: {cn_id}")
 
 # Main header
 st.markdown('<h1 class="main-title">⭐ SD-DarkMaster-Pro Dashboard</h1>', unsafe_allow_html=True)
@@ -357,13 +376,75 @@ with tab_models:
                         st.rerun()
         
         with sd15_subtabs[1]:  # LoRAs
-            st.info("SD 1.5 LoRAs will be displayed here")
+            st.markdown("### SD 1.5 LoRAs")
+            
+            # Create LoRA grid
+            cols = st.columns(2)
+            for idx, (lora_name, lora_info) in enumerate(sd15_lora_list.items()):
+                with cols[idx % 2]:
+                    lora_id = f"sd15_lora_{lora_name}"
+                    is_selected = lora_id in st.session_state.selected_loras
+                    
+                    # LoRA card with checkbox
+                    with st.container():
+                        col1, col2 = st.columns([1, 5])
+                        with col1:
+                            if st.checkbox("", value=is_selected, key=f"lora_{lora_id}"):
+                                if not is_selected:
+                                    st.session_state.selected_loras.add(lora_id)
+                                else:
+                                    st.session_state.selected_loras.remove(lora_id)
+                                st.rerun()
+                        with col2:
+                            st.markdown(f"**{lora_name[:40]}...**" if len(lora_name) > 40 else f"**{lora_name}**")
+                            if isinstance(lora_info, list) and len(lora_info) > 0:
+                                st.caption(f"📦 {lora_info[0].get('name', 'unknown')}")
         
         with sd15_subtabs[2]:  # VAE
-            st.info("SD 1.5 VAEs will be displayed here")
+            st.markdown("### SD 1.5 VAEs")
+            
+            # VAE selector (single select)
+            vae_options = ["None (Use Model's VAE)"] + list(sd15_vae_list.keys())
+            selected_vae = st.radio(
+                "Select VAE",
+                vae_options,
+                index=0 if st.session_state.selected_vae is None else (
+                    vae_options.index(st.session_state.selected_vae) if st.session_state.selected_vae in vae_options else 0
+                ),
+                key="vae_selector"
+            )
+            
+            if selected_vae != "None (Use Model's VAE)":
+                st.session_state.selected_vae = selected_vae
+                vae_info = sd15_vae_list[selected_vae]
+                st.info(f"**Size:** {vae_info.get('name', 'unknown')}")
+            else:
+                st.session_state.selected_vae = None
         
         with sd15_subtabs[3]:  # ControlNet
-            st.info("SD 1.5 ControlNet models will be displayed here")
+            st.markdown("### SD 1.5 ControlNet Models")
+            
+            # Create ControlNet grid
+            cols = st.columns(2)
+            for idx, (cn_name, cn_info) in enumerate(sd15_controlnet_list.items()):
+                with cols[idx % 2]:
+                    cn_id = f"sd15_cn_{cn_name}"
+                    is_selected = cn_id in st.session_state.selected_controlnet
+                    
+                    # ControlNet card with checkbox
+                    with st.container():
+                        col1, col2 = st.columns([1, 5])
+                        with col1:
+                            if st.checkbox("", value=is_selected, key=f"cn_{cn_id}"):
+                                if not is_selected:
+                                    st.session_state.selected_controlnet.add(cn_id)
+                                else:
+                                    st.session_state.selected_controlnet.remove(cn_id)
+                                st.rerun()
+                        with col2:
+                            st.markdown(f"**{cn_name}**")
+                            if isinstance(cn_info, list) and len(cn_info) > 0:
+                                st.caption(f"📦 {len(cn_info)} file(s)")
     
     # SDXL Tab
     with model_tabs[1]:
@@ -388,18 +469,80 @@ with tab_models:
                     """, unsafe_allow_html=True)
                     
                     # Actual button (invisible)
-                    if st.button("", key=f"btn_{model_id}", use_container_width=True):
+                    if st.button(model_name, key=f"btn_{model_id}", use_container_width=True, help=model_name):
                         toggle_model(model_id)
                         st.rerun()
         
         with sdxl_subtabs[1]:  # LoRAs
-            st.info("SDXL LoRAs will be displayed here")
+            st.markdown("### SDXL LoRAs")
+            
+            # Create LoRA grid
+            cols = st.columns(2)
+            for idx, (lora_name, lora_info) in enumerate(sdxl_lora_list.items()):
+                with cols[idx % 2]:
+                    lora_id = f"sdxl_lora_{lora_name}"
+                    is_selected = lora_id in st.session_state.selected_loras
+                    
+                    # LoRA card with checkbox
+                    with st.container():
+                        col1, col2 = st.columns([1, 5])
+                        with col1:
+                            if st.checkbox("", value=is_selected, key=f"lora_{lora_id}"):
+                                if not is_selected:
+                                    st.session_state.selected_loras.add(lora_id)
+                                else:
+                                    st.session_state.selected_loras.remove(lora_id)
+                                st.rerun()
+                        with col2:
+                            st.markdown(f"**{lora_name[:40]}...**" if len(lora_name) > 40 else f"**{lora_name}**")
+                            if isinstance(lora_info, list) and len(lora_info) > 0:
+                                st.caption(f"📦 {lora_info[0].get('name', 'unknown')}")
         
         with sdxl_subtabs[2]:  # VAE
-            st.info("SDXL VAEs will be displayed here")
+            st.markdown("### SDXL VAEs")
+            
+            # VAE selector (single select)
+            vae_options = ["None (Use Model's VAE)"] + list(sdxl_vae_list.keys())
+            selected_vae = st.radio(
+                "Select VAE",
+                vae_options,
+                index=0 if st.session_state.selected_vae is None else (
+                    vae_options.index(st.session_state.selected_vae) if st.session_state.selected_vae in vae_options else 0
+                ),
+                key="sdxl_vae_selector"
+            )
+            
+            if selected_vae != "None (Use Model's VAE)":
+                st.session_state.selected_vae = f"sdxl_{selected_vae}"
+                vae_info = sdxl_vae_list[selected_vae]
+                st.info(f"**Size:** {vae_info.get('name', 'unknown')}")
+            else:
+                st.session_state.selected_vae = None
         
         with sdxl_subtabs[3]:  # ControlNet
-            st.info("SDXL ControlNet models will be displayed here")
+            st.markdown("### SDXL ControlNet Models")
+            
+            # Create ControlNet grid
+            cols = st.columns(2)
+            for idx, (cn_name, cn_info) in enumerate(sdxl_controlnet_list.items()):
+                with cols[idx % 2]:
+                    cn_id = f"sdxl_cn_{cn_name}"
+                    is_selected = cn_id in st.session_state.selected_controlnet
+                    
+                    # ControlNet card with checkbox
+                    with st.container():
+                        col1, col2 = st.columns([1, 5])
+                        with col1:
+                            if st.checkbox("", value=is_selected, key=f"cn_{cn_id}"):
+                                if not is_selected:
+                                    st.session_state.selected_controlnet.add(cn_id)
+                                else:
+                                    st.session_state.selected_controlnet.remove(cn_id)
+                                st.rerun()
+                        with col2:
+                            st.markdown(f"**{cn_name}**")
+                            if isinstance(cn_info, list) and len(cn_info) > 0:
+                                st.caption(f"📦 {len(cn_info)} file(s)")
     
     # Pony Tab
     with model_tabs[2]:
@@ -449,27 +592,124 @@ with tab_models:
 with tab_browser:
     st.markdown("### 🔍 CivitAI Model Browser")
     
+    # Import CivitAI browser
+    try:
+        from scripts.civitai_browser import CivitAIBrowser
+        browser = CivitAIBrowser()
+    except ImportError:
+        st.error("CivitAI browser module not found")
+        browser = None
+    
     # Search bar
     search_col1, search_col2 = st.columns([3, 1])
     with search_col1:
-        search_query = st.text_input("Search models...", placeholder="Enter model name or tag")
+        search_query = st.text_input("Search models...", placeholder="Enter model name or tag", key="civitai_search")
     with search_col2:
         search_button = st.button("Search", use_container_width=True, type="primary")
     
     # Filters
     filter_cols = st.columns(4)
     with filter_cols[0]:
-        model_type = st.selectbox("Type", ["All", "Checkpoint", "LoRA", "VAE", "ControlNet"])
+        model_type = st.selectbox("Type", ["All", "Checkpoint", "LoRA", "VAE", "ControlNet"], key="civitai_type")
     with filter_cols[1]:
-        base_model = st.selectbox("Base Model", ["All", "SD 1.5", "SDXL", "Pony", "Illustrious"])
+        base_model = st.selectbox("Base Model", ["All", "SD 1.5", "SDXL", "Pony", "Illustrious"], key="civitai_base")
     with filter_cols[2]:
-        sort_by = st.selectbox("Sort By", ["Most Downloaded", "Highest Rated", "Newest"])
+        sort_by = st.selectbox("Sort By", ["Most Downloaded", "Highest Rated", "Newest"], key="civitai_sort")
     with filter_cols[3]:
-        nsfw_filter = st.checkbox("Include NSFW", value=False)
+        nsfw_filter = st.checkbox("Include NSFW", value=False, key="civitai_nsfw")
     
     # Results area
-    st.markdown("### Search Results")
-    st.info("Enter a search query to find models on CivitAI")
+    if search_button and browser and search_query:
+        with st.spinner("Searching CivitAI..."):
+            # Map filter values
+            types_map = {
+                "Checkpoint": ["Checkpoint"],
+                "LoRA": ["LORA", "LoCon"],
+                "VAE": ["VAE"],
+                "ControlNet": ["Controlnet"]
+            }
+            
+            # Perform search
+            types = types_map.get(model_type, None) if model_type != "All" else None
+            results = browser.search_models(
+                query=search_query,
+                types=types,
+                sort=sort_by,
+                nsfw=nsfw_filter,
+                limit=12
+            )
+            
+            if results:
+                # Display results in grid
+                st.markdown(f"Found {len(results)} models")
+                
+                # Create grid layout
+                cols = st.columns(3)
+                for idx, model in enumerate(results):
+                    with cols[idx % 3]:
+                        # Model card
+                        with st.container():
+                            # Preview image
+                            if model.get('images'):
+                                st.image(model['images'][0]['url'], use_column_width=True)
+                            
+                            # Model info
+                            st.markdown(f"**{model['name']}**")
+                            st.caption(f"by {model.get('creator', {}).get('username', 'Unknown')}")
+                            
+                            # Stats
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.caption(f"⬇️ {model.get('downloadCount', 0):,}")
+                            with col2:
+                                st.caption(f"⭐ {model.get('rating', 0):.1f}")
+                            
+                            # Download button
+                            if st.button("Download", key=f"dl_{model['id']}", use_container_width=True):
+                                # Add to download queue
+                                version = model.get('modelVersions', [{}])[0]
+                                if version:
+                                    download_url = version.get('downloadUrl', '')
+                                    filename = version.get('files', [{}])[0].get('name', f"{model['name']}.safetensors")
+                                    
+                                    # Determine storage path based on type
+                                    if model['type'] == 'Checkpoint':
+                                        storage_path = 'models/Stable-diffusion'
+                                    elif model['type'] in ['LORA', 'LoCon']:
+                                        storage_path = 'models/Lora'
+                                    elif model['type'] == 'VAE':
+                                        storage_path = 'models/VAE'
+                                    elif model['type'] == 'Controlnet':
+                                        storage_path = 'models/ControlNet'
+                                    else:
+                                        storage_path = 'models/Other'
+                                    
+                                    # Add to session state download queue
+                                    if 'civitai_downloads' not in st.session_state:
+                                        st.session_state.civitai_downloads = []
+                                    
+                                    st.session_state.civitai_downloads.append({
+                                        'name': model['name'],
+                                        'url': download_url,
+                                        'filename': filename,
+                                        'storage_path': storage_path,
+                                        'type': model['type']
+                                    })
+                                    
+                                    st.success(f"Added {model['name']} to download queue!")
+                                    add_console_output(f"Queued download: {model['name']}")
+            else:
+                st.info("No models found. Try different search terms.")
+    
+    # Show download queue
+    if 'civitai_downloads' in st.session_state and st.session_state.civitai_downloads:
+        st.markdown("### 📥 Download Queue")
+        for item in st.session_state.civitai_downloads:
+            st.text(f"• {item['name']} → {item['storage_path']}")
+        
+        if st.button("Clear Queue", key="clear_civitai_queue"):
+            st.session_state.civitai_downloads = []
+            st.rerun()
 
 with tab_settings:
     st.markdown("### ⚙️ Settings")
@@ -647,10 +887,11 @@ with save_col3:
             "install_method": "package" if "Package" in install_method else "git",
             "selected_models": list(st.session_state.selected_models),
             "selected_loras": list(st.session_state.selected_loras),
-            "selected_vae": list(st.session_state.selected_vae),
+            "selected_vae": st.session_state.selected_vae,  # This is already a string or None
             "selected_controlnet": list(st.session_state.selected_controlnet),
             "base_model_lock": base_model_lock,
             "webui_type": webui_type,
+            "civitai_downloads": st.session_state.get('civitai_downloads', []),
             "download_settings": {
                 "use_aria2c": True,
                 "parallel_downloads": 4,
