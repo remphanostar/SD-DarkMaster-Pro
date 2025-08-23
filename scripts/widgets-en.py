@@ -351,19 +351,35 @@ with header_col3:
     st.markdown("**Queue:** " + str(len(st.session_state.download_queue)))
     st.markdown('</div>', unsafe_allow_html=True)
 
+# Show current selections summary
+st.markdown("### 📊 Current Selections")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Models", len(st.session_state.selected_models))
+with col2:
+    st.metric("LoRAs", len(st.session_state.selected_loras))
+with col3:
+    st.metric("VAE", "1" if st.session_state.selected_vae else "0")
+with col4:
+    st.metric("ControlNets", len(st.session_state.selected_controlnet))
+
 # Main content tabs
 tab_models, tab_browser, tab_settings = st.tabs(["📦 Models", "🔍 Model Search", "⚙️ Settings"])
 
 with tab_models:
+    st.markdown("### Model Selection")
+    st.info("Select models, LoRAs, VAEs, and ControlNets to download")
+    
     # Model type tabs (using the names you specified)
     model_tabs = st.tabs(["SD1.5", "SDXL", "Pony", "Illustrious", "Misc"])
     
     # SD1.5 Tab
     with model_tabs[0]:
-        sd15_subtabs = st.tabs(["Models", "LoRAs", "VAE", "ControlNet"])
+        st.markdown("#### SD 1.5 Models & Components")
         
-        with sd15_subtabs[0]:  # Models
-            st.markdown("### SD 1.5 Models")
+        # Create expandable sections for better organization
+        with st.expander("🎨 SD 1.5 Models", expanded=True):
+            st.markdown("Select SD 1.5 checkpoint models")
             
             # Create model grid
             cols = st.columns(3)
@@ -372,21 +388,17 @@ with tab_models:
                     model_id = f"sd15_{model_name}"
                     is_selected = model_id in st.session_state.selected_models
                     
-                    # Create custom button with HTML
-                    button_class = "model-button-selected" if is_selected else "model-button"
-                    st.markdown(f"""
-                        <div class="{button_class}" onclick="console.log('clicked')">
-                            {model_name[:30]}...
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Actual button (invisible)
-                    if st.button("", key=f"btn_{model_id}", use_container_width=True):
-                        toggle_model(model_id)
-                        st.rerun()
+                    if st.checkbox(model_name[:30], value=is_selected, key=f"cb_{model_id}"):
+                        if not is_selected:
+                            st.session_state.selected_models.add(model_id)
+                            add_console_output(f"Selected: {model_name}")
+                    else:
+                        if is_selected:
+                            st.session_state.selected_models.remove(model_id)
+                            add_console_output(f"Deselected: {model_name}")
         
-        with sd15_subtabs[1]:  # LoRAs
-            st.markdown("### SD 1.5 LoRAs")
+        with st.expander("🎨 SD 1.5 LoRAs", expanded=False):
+            st.markdown("Select SD 1.5 LoRA models")
             
             # Create LoRA grid
             cols = st.columns(2)
@@ -395,67 +407,54 @@ with tab_models:
                     lora_id = f"sd15_lora_{lora_name}"
                     is_selected = lora_id in st.session_state.selected_loras
                     
-                    # LoRA card with checkbox
-                    with st.container():
-                        col1, col2 = st.columns([1, 5])
-                        with col1:
-                            if st.checkbox("", value=is_selected, key=f"lora_{lora_id}"):
-                                if not is_selected:
-                                    st.session_state.selected_loras.add(lora_id)
-                                else:
-                                    st.session_state.selected_loras.remove(lora_id)
-                                st.rerun()
-                        with col2:
-                            st.markdown(f"**{lora_name[:40]}...**" if len(lora_name) > 40 else f"**{lora_name}**")
-                            if isinstance(lora_info, list) and len(lora_info) > 0:
-                                st.caption(f"📦 {lora_info[0].get('name', 'unknown')}")
+                    if st.checkbox(lora_name[:40], value=is_selected, key=f"cb_{lora_id}"):
+                        if not is_selected:
+                            st.session_state.selected_loras.add(lora_id)
+                            add_console_output(f"Selected LoRA: {lora_name}")
+                    else:
+                        if is_selected:
+                            st.session_state.selected_loras.remove(lora_id)
+                            add_console_output(f"Deselected LoRA: {lora_name}")
         
-        with sd15_subtabs[2]:  # VAE
-            st.markdown("### SD 1.5 VAEs")
+        with st.expander("🎭 SD 1.5 VAE", expanded=False):
+            st.markdown("Select VAE for SD 1.5 models")
             
-            # VAE selector (single select)
-            vae_options = ["None (Use Model's VAE)"] + list(sd15_vae_list.keys())
+            # VAE selection (single choice)
+            vae_options = ["None (Use Model VAE)"] + list(sd15_vae_list.keys())
+            current_vae = st.session_state.selected_vae if st.session_state.selected_vae in vae_options else "None (Use Model VAE)"
+            
             selected_vae = st.radio(
-                "Select VAE",
+                "Select VAE:",
                 vae_options,
-                index=0 if st.session_state.selected_vae is None else (
-                    vae_options.index(st.session_state.selected_vae) if st.session_state.selected_vae in vae_options else 0
-                ),
-                key="vae_selector"
+                index=vae_options.index(current_vae),
+                key="sd15_vae_radio"
             )
             
-            if selected_vae != "None (Use Model's VAE)":
+            if selected_vae != "None (Use Model VAE)":
                 st.session_state.selected_vae = selected_vae
-                vae_info = sd15_vae_list[selected_vae]
-                st.info(f"**Size:** {vae_info.get('name', 'unknown')}")
+                add_console_output(f"Selected VAE: {selected_vae}")
             else:
                 st.session_state.selected_vae = None
         
-        with sd15_subtabs[3]:  # ControlNet
-            st.markdown("### SD 1.5 ControlNet Models")
+        with st.expander("🎮 SD 1.5 ControlNet", expanded=False):
+            st.markdown("Select ControlNet models")
             
-            # Create ControlNet grid
+            # ControlNet selection
             cols = st.columns(2)
             for idx, (cn_name, cn_info) in enumerate(sd15_controlnet_list.items()):
                 with cols[idx % 2]:
                     cn_id = f"sd15_cn_{cn_name}"
                     is_selected = cn_id in st.session_state.selected_controlnet
                     
-                    # ControlNet card with checkbox
-                    with st.container():
-                        col1, col2 = st.columns([1, 5])
-                        with col1:
-                            if st.checkbox("", value=is_selected, key=f"cn_{cn_id}"):
-                                if not is_selected:
-                                    st.session_state.selected_controlnet.add(cn_id)
-                                else:
-                                    st.session_state.selected_controlnet.remove(cn_id)
-                                st.rerun()
-                        with col2:
-                            st.markdown(f"**{cn_name}**")
-                            if isinstance(cn_info, list) and len(cn_info) > 0:
-                                st.caption(f"📦 {len(cn_info)} file(s)")
-    
+                    if st.checkbox(cn_name[:40], value=is_selected, key=f"cb_{cn_id}"):
+                        if not is_selected:
+                            st.session_state.selected_controlnet.add(cn_id)
+                            add_console_output(f"Selected ControlNet: {cn_name}")
+                    else:
+                        if is_selected:
+                            st.session_state.selected_controlnet.remove(cn_id)
+                            add_console_output(f"Deselected ControlNet: {cn_name}")
+
     # SDXL Tab
     with model_tabs[1]:
         sdxl_subtabs = st.tabs(["Models", "LoRAs", "VAE", "ControlNet"])
@@ -866,6 +865,9 @@ if len(st.session_state.console_output) == 0:
 
 # Add Save Configuration Button at the bottom
 st.markdown("---")
+st.markdown("## 💾 Save Configuration")
+st.info("Configure your installation preferences and save all selections for the next steps")
+
 save_col1, save_col2, save_col3 = st.columns([2, 1, 1])
 
 with save_col1:
@@ -902,7 +904,8 @@ with save_col2:
             st.warning("⚠️ Package not ready, will use git clone")
 
 with save_col3:
-    if st.button("💾 Save All Settings", type="primary", use_container_width=True):
+    st.markdown("### ")  # Add spacing
+    if st.button("💾 Save All Settings", type="primary", use_container_width=True, help="Click to save all your selections and settings to session.json"):
         # Prepare configuration data
         config = {
             "timestamp": datetime.now().isoformat(),
