@@ -92,16 +92,23 @@ if platform == 'colab':
             universal_newlines=True
         )
         
-        # Read output for a few seconds
+        # Read output and wait for server to start
         print("\nStreamlit startup output:")
+        server_started = False
         start_time = time.time()
-        while time.time() - start_time < 10:  # Show output for 10 seconds
+        
+        while time.time() - start_time < 30:  # Wait up to 30 seconds
             line = process.stdout.readline()
             if line:
                 print(f"  {line.rstrip()}")
+                # Check if server has started
+                if "You can now view your Streamlit app" in line or "Network URL:" in line:
+                    server_started = True
+                    break
             if process.poll() is not None:
                 print(f"❌ Process exited with code: {process.returncode}")
                 break
+            time.sleep(0.1)
         
         print("-" * 60)
         
@@ -115,42 +122,73 @@ if platform == 'colab':
                 print(remaining_output)
             sys.exit(1)
         
+        if not server_started:
+            print("⚠️ Server startup message not detected, but process is running. Continuing...")
+        
+        # Wait a bit more to ensure server is fully up
+        print("\n⏳ Waiting for server to stabilize...")
+        time.sleep(5)
+        
         # Create tunnel
         print("\n🌐 Creating public URL with ngrok...")
-        public_url = ngrok.connect(8501, "http")
-        
-        print("\n" + "="*60)
-        print(f"✅ Dashboard ready at: {public_url}")
-        print("="*60)
-        
-        # Also display as HTML link
-        from IPython.display import display, HTML
-        display(HTML(f'''
-        <div style="background: #10B981; padding: 20px; border-radius: 10px; text-align: center;">
-            <a href="{public_url}" target="_blank" style="color: white; font-size: 18px; text-decoration: none;">
-                🚀 Click here to open the Dashboard
-            </a>
-        </div>
-        '''))
-        
-        print("\n📋 Instructions:")
-        print("1. Click the link above to open the dashboard")
-        print("2. Configure your settings")
-        print("3. Click 'Save All Settings' when done")
-        print("4. Then run Cell 3 to download models")
-        
-        # Keep showing Streamlit output
-        print("\n📊 Streamlit server output (live):")
-        print("-" * 60)
-        while True:
-            line = process.stdout.readline()
-            if line:
-                print(f"  {line.rstrip()}")
-            else:
-                time.sleep(0.1)
-            if process.poll() is not None:
-                print(f"\n❌ Streamlit process ended with code: {process.returncode}")
-                break
+        try:
+            # Close any existing tunnels first
+            for tunnel in ngrok.get_tunnels():
+                print(f"Closing existing tunnel: {tunnel.public_url}")
+                ngrok.disconnect(tunnel.public_url)
+            
+            # Create new tunnel
+            public_url = ngrok.connect(8501, "http")
+            print(f"✅ Ngrok tunnel created: {public_url}")
+            
+            print("\n" + "="*60)
+            print(f"✅ Dashboard ready at: {public_url}")
+            print("="*60)
+            
+            # Also display as HTML link
+            from IPython.display import display, HTML
+            display(HTML(f'''
+            <div style="background: #10B981; padding: 20px; border-radius: 10px; text-align: center;">
+                <a href="{public_url}" target="_blank" style="color: white; font-size: 18px; text-decoration: none;">
+                    🚀 Click here to open the Dashboard
+                </a>
+            </div>
+            '''))
+            
+            print("\n📋 Instructions:")
+            print("1. Click the link above to open the dashboard")
+            print("2. Configure your settings")
+            print("3. Click 'Save All Settings' when done")
+            print("4. Then run Cell 3 to download models")
+            
+            # Keep showing Streamlit output for a bit
+            print("\n📊 Streamlit server output (live):")
+            print("-" * 60)
+            
+            # Continue showing output but don't block forever
+            output_start = time.time()
+            while time.time() - output_start < 10:  # Show output for 10 more seconds
+                line = process.stdout.readline()
+                if line:
+                    print(f"  {line.rstrip()}")
+                else:
+                    time.sleep(0.1)
+                if process.poll() is not None:
+                    print(f"\n❌ Streamlit process ended with code: {process.returncode}")
+                    break
+            
+            print("\n✅ Dashboard is running in the background. The cell will complete but Streamlit continues running.")
+            print("ℹ️ If you need to see more logs, check the Colab runtime logs.")
+            
+        except Exception as e:
+            print(f"\n❌ Failed to create ngrok tunnel: {str(e)}")
+            print("Common causes:")
+            print("- Invalid auth token")
+            print("- Ngrok service issues")
+            print("- Port 8501 not available")
+            import traceback
+            traceback.print_exc()
+            print("\n💡 Try using Cell 2b (fallback) instead if this doesn't work")
         
     except Exception as e:
         print(f"\n❌ Error: {str(e)}")
