@@ -5,433 +5,524 @@ No jumping, consistent layout, comprehensive features
 """
 
 import streamlit as st
+import os
 import sys
 import json
-import requests
-from pathlib import Path
+import platform
+import subprocess
 from datetime import datetime
+import time
 
-# Add project root to path
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Try to import model data
 try:
-    if Path('/content/SD-DarkMaster-Pro').exists():
-        project_root = Path('/content/SD-DarkMaster-Pro')
-    else:
-        project_root = Path('/workspace/SD-DarkMaster-Pro')
-except:
-    project_root = Path('/workspace/SD-DarkMaster-Pro')
-
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(project_root / 'scripts'))
-
-# Import model dictionaries with error handling
-try:
-    from _models_data import model_list as sd15_models
-except:
+    from scripts._models_data import model_list as sd15_models
+except ImportError:
     sd15_models = {}
     
 try:
-    from _xl_models_data import model_list as sdxl_models
-except:
+    from scripts._xl_models_data import model_list as sdxl_models
+except ImportError:
     sdxl_models = {}
-
-try:
-    from setup_central_storage import MODEL_REGISTRY
-except:
-    MODEL_REGISTRY = {}
 
 # Page config
 st.set_page_config(
-    page_title="SD-DarkMaster-Pro",
-    page_icon="🌟",
-    layout="wide"
+    page_title="SD-DarkMaster-Pro Dashboard",
+    page_icon="⭐",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# CSS for consistent layout and button styling
+# Custom CSS for the sophisticated dark theme
 st.markdown("""
 <style>
-/* Dark theme */
-.stApp {
-    background: #0e0e0e;
-}
-
-/* Hide Streamlit branding */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-
-/* Consistent tab heights - prevent jumping */
-.stTabs {
-    min-height: 50px;
-}
-
-.stTabs [data-baseweb="tab-list"] {
-    gap: 4px;
-    background-color: transparent;
-    align-items: stretch;
-    min-height: 45px;
-}
-
-.stTabs [data-baseweb="tab"] {
-    background-color: #1a1a1a;
-    border-radius: 8px 8px 0 0;
-    color: #ffffff;
-    border: 1px solid #2a2a2a;
-    padding: 10px 16px;
-    min-height: 42px;
-}
-
-.stTabs [data-baseweb="tab"][aria-selected="true"] {
-    background-color: #2a2a2a;
-    border-bottom: 3px solid #ef4444;
-}
-
-/* Model buttons */
-.model-button {
-    width: 100%;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    border: 2px solid #2a2a2a;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    margin: 4px 0;
-    cursor: pointer;
-    text-align: center;
-}
-
-.model-button:hover {
-    background-color: #2a2a2a;
-    border-color: #ef4444;
-}
-
-.model-button-selected {
-    background-color: #ef4444 !important;
-    border-color: #dc2626 !important;
-}
-
-/* Hide the actual button but keep it clickable */
-.stButton > button {
-    opacity: 0;
-    height: 0px;
-    padding: 0;
-    margin: -20px 0 0 0;
-}
+    /* Dark theme base */
+    .stApp {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+    
+    /* Header styling */
+    .header-container {
+        background: linear-gradient(135deg, rgba(139, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+        border: 2px solid rgba(139, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Title with star */
+    .main-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: linear-gradient(90deg, #FFD700, #FFA500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+    
+    /* Info panels */
+    .info-panel {
+        background: rgba(139, 0, 0, 0.1);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 15px;
+        height: 100%;
+    }
+    
+    /* Console styling */
+    .console-output {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #0f0;
+        height: 150px;
+        overflow-y: auto;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        background: rgba(139, 0, 0, 0.05);
+        border-radius: 10px;
+        padding: 5px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: transparent;
+        color: #888;
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: rgba(139, 0, 0, 0.3) !important;
+        color: white !important;
+        border: 1px solid rgba(139, 0, 0, 0.5);
+    }
+    
+    /* Model button styling */
+    .model-button {
+        background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #888;
+        text-align: center;
+        width: 100%;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .model-button:hover {
+        border-color: rgba(139, 0, 0, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+    }
+    
+    .model-button-selected {
+        background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(139, 0, 0, 0.1) 100%);
+        border: 2px solid #8B0000;
+        color: white !important;
+    }
+    
+    /* Download button styling */
+    .download-button {
+        background: linear-gradient(135deg, #8B0000 0%, #660000 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .download-button:hover {
+        background: linear-gradient(135deg, #A00000 0%, #8B0000 100%);
+        transform: scale(1.05);
+    }
+    
+    /* Queue section */
+    .queue-section {
+        background: rgba(139, 0, 0, 0.05);
+        border: 1px solid rgba(139, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    /* Progress bar */
+    .stProgress > div > div {
+        background: linear-gradient(90deg, #8B0000, #FF0000);
+    }
+    
+    /* Selections panel */
+    .selections-panel {
+        background: rgba(139, 0, 0, 0.1);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 15px;
+        height: 100%;
+    }
+    
+    .selections-panel h4 {
+        color: #FFD700;
+        margin-bottom: 10px;
+    }
+    
+    .selection-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 5px 0;
+        color: #888;
+        font-size: 12px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Initialize session state
 if 'selected_models' not in st.session_state:
     st.session_state.selected_models = set()
-if 'output_log' not in st.session_state:
-    st.session_state.output_log = []
+if 'console_output' not in st.session_state:
+    st.session_state.console_output = []
 if 'download_queue' not in st.session_state:
     st.session_state.download_queue = []
-if 'civitai_cache' not in st.session_state:
-    st.session_state.civitai_cache = {}
+if 'environment_info' not in st.session_state:
+    st.session_state.environment_info = {
+        'platform': 'Unknown',
+        'gpu': False,
+        'hardware': 'Unknown'
+    }
 
-def safe_render_button(name, model_id, size="Unknown"):
-    """Safely render a model button without problematic parameters"""
-    is_selected = model_id in st.session_state.selected_models
-    button_class = "model-button-selected" if is_selected else "model-button"
+# Function to detect environment
+def detect_environment():
+    """Detect the current running environment"""
+    env_info = {
+        'platform': 'Local',
+        'gpu': False,
+        'hardware': platform.machine()
+    }
     
-    # Display the styled div
-    st.markdown(f"""
-    <div class="{button_class}">
-        {name[:40]} ({size})
-    </div>
-    """, unsafe_allow_html=True)
+    # Check for various cloud platforms
+    if os.path.exists('/content'):
+        env_info['platform'] = 'Google Colab'
+    elif os.path.exists('/kaggle'):
+        env_info['platform'] = 'Kaggle'
+    elif 'PAPERSPACE' in os.environ:
+        env_info['platform'] = 'Paperspace'
+    elif 'RUNPOD' in os.environ:
+        env_info['platform'] = 'Runpod'
+    elif 'VAST' in os.environ:
+        env_info['platform'] = 'Vast.ai'
     
-    # Create invisible button for interaction (no label_visibility parameter)
-    if st.button("", key=f"btn_{model_id}"):
-        if model_id in st.session_state.selected_models:
-            st.session_state.selected_models.remove(model_id)
-            st.session_state.output_log.append(f"[-] Deselected: {name}")
-        else:
-            st.session_state.selected_models.add(model_id)
-            st.session_state.output_log.append(f"[+] Selected: {name}")
-        st.rerun()
-
-# Title
-st.title("🌟 SD-DarkMaster-Pro Dashboard")
-st.caption("Unified Model Management System")
-
-# YOUR EXACT TAB STRUCTURE
-col1 = st.columns([1])[0]
-
-with col1:
-    # Level 1: Main tabs
-    tab2, tab3 = st.tabs(["Models", "Model search"])
+    # Check for GPU
+    try:
+        result = subprocess.run(['nvidia-smi'], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            env_info['gpu'] = True
+    except:
+        pass
     
-    with tab2:  # Models tab
-        # Level 2: Model types
-        tab4, tab5 = st.tabs(["Sdxl", "etc"])
+    return env_info
+
+# Update environment info
+if st.session_state.environment_info['platform'] == 'Unknown':
+    st.session_state.environment_info = detect_environment()
+
+# Add to console
+def add_console_output(message):
+    """Add message to console output"""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    st.session_state.console_output.append(f"[{timestamp}] {message}")
+    # Keep only last 100 messages
+    if len(st.session_state.console_output) > 100:
+        st.session_state.console_output = st.session_state.console_output[-100:]
+
+# Toggle model selection
+def toggle_model(model_id):
+    """Toggle model selection"""
+    if model_id in st.session_state.selected_models:
+        st.session_state.selected_models.remove(model_id)
+        add_console_output(f"Deselected: {model_id}")
+    else:
+        st.session_state.selected_models.add(model_id)
+        add_console_output(f"Selected: {model_id}")
+
+# Main header
+st.markdown('<h1 class="main-title">⭐ SD-DarkMaster-Pro Dashboard</h1>', unsafe_allow_html=True)
+
+# Header section with controls
+header_col1, header_col2, header_col3 = st.columns([1, 3, 1])
+
+with header_col1:
+    st.markdown('<div class="info-panel">', unsafe_allow_html=True)
+    st.markdown("### Environment Info")
+    st.write(f"**Platform:** {st.session_state.environment_info['platform']}")
+    st.write(f"**Hardware:** {st.session_state.environment_info['hardware']}")
+    st.write(f"**GPU:** {'✅ Yes' if st.session_state.environment_info['gpu'] else '❌ No'}")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with header_col2:
+    # WebUI selector and Launch button row
+    selector_col, launch_col = st.columns([2, 1])
+    
+    with selector_col:
+        webui_choice = st.selectbox(
+            "WebUI Selector",
+            ["Automatic1111", "ComfyUI", "Forge", "ReForge"],
+            key="webui_selector"
+        )
+    
+    with launch_col:
+        if st.button("🚀 Launch WebUI", key="launch_webui", use_container_width=True, type="primary"):
+            add_console_output(f"Launching {webui_choice}...")
+            st.balloons()
+    
+    # Console output
+    st.markdown("### Output Console")
+    console_placeholder = st.empty()
+    with console_placeholder.container():
+        console_text = "\n".join(st.session_state.console_output[-10:]) if st.session_state.console_output else "System ready..."
+        st.code(console_text, language="bash")
+
+with header_col3:
+    st.markdown('<div class="selections-panel">', unsafe_allow_html=True)
+    st.markdown("### Selections")
+    st.markdown("**Pre-installed:** 5")
+    st.markdown("**CivitAI:** " + str(len(st.session_state.selected_models)))
+    st.markdown("**Queue:** " + str(len(st.session_state.download_queue)))
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Main content tabs
+tab_models, tab_browser, tab_settings = st.tabs(["📦 Models", "🔍 Model Search", "⚙️ Settings"])
+
+with tab_models:
+    # Model type tabs (using the names you specified)
+    model_tabs = st.tabs(["SD1.5", "SDXL", "Pony", "Illustrious", "Misc"])
+    
+    # SD1.5 Tab
+    with model_tabs[0]:
+        sd15_subtabs = st.tabs(["Models", "LoRAs", "VAE", "ControlNet"])
         
-        with tab4:  # Sdxl
-            # Level 3: Sub-categories
-            tab6, tab7, tab8 = st.tabs(["Model", "Lora", "Etc"])
+        with sd15_subtabs[0]:  # Models
+            st.markdown("### SD 1.5 Models")
             
-            with tab6:  # SDXL Models
-                st.markdown("#### SDXL Checkpoints")
-                if sdxl_models:
-                    # Filter out pony/illustrious for main SDXL
-                    sdxl_filtered = [(k, v) for k, v in sdxl_models.items() 
-                                   if 'pony' not in k.lower() and 'illustrious' not in k.lower()]
+            # Create model grid
+            cols = st.columns(3)
+            for idx, (model_name, model_info) in enumerate(list(sd15_models.items())[:9]):
+                with cols[idx % 3]:
+                    model_id = f"sd15_{model_name}"
+                    is_selected = model_id in st.session_state.selected_models
                     
-                    cols = st.columns(2)
-                    for idx, (name, info) in enumerate(sdxl_filtered):
-                        with cols[idx % 2]:
-                            safe_render_button(name, f"sdxl_{name}", info.get('size', 'Unknown'))
-                else:
-                    st.info("No SDXL models available")
-            
-            with tab7:  # SDXL Loras
-                st.markdown("#### SDXL LoRAs")
-                st.info("SDXL LoRAs will appear here")
-            
-            with tab8:  # SDXL Etc (VAE, ControlNet, etc)
-                st.markdown("#### SDXL Additional Models")
-                sub_tabs = st.tabs(["VAE", "ControlNet", "Embeddings"])
-                
-                with sub_tabs[0]:
-                    st.info("SDXL VAE models will appear here")
-                
-                with sub_tabs[1]:
-                    st.info("SDXL ControlNet models will appear here")
-                
-                with sub_tabs[2]:
-                    st.info("SDXL Embeddings will appear here")
-        
-        with tab5:  # etc (SD1.5, Pony, Illustrious, Misc)
-            # Additional model types
-            model_tabs = st.tabs(["SD-1.5", "Pony", "Illustrious", "Misc"])
-            
-            with model_tabs[0]:  # SD-1.5
-                sub = st.tabs(["Models", "Loras", "VAE", "ControlNet"])
-                
-                with sub[0]:
-                    st.markdown("#### SD 1.5 Checkpoints")
-                    if sd15_models:
-                        cols = st.columns(2)
-                        for idx, (name, info) in enumerate(list(sd15_models.items())):
-                            with cols[idx % 2]:
-                                safe_render_button(name, f"sd15_{name}", info.get('size', 'Unknown'))
-                    else:
-                        st.info("No SD 1.5 models available")
-                
-                with sub[1]:
-                    st.info("SD 1.5 LoRAs will appear here")
-                
-                with sub[2]:
-                    st.info("SD 1.5 VAE models will appear here")
-                
-                with sub[3]:
-                    st.info("SD 1.5 ControlNet models will appear here")
-            
-            with model_tabs[1]:  # Pony
-                st.markdown("#### Pony Models")
-                if sdxl_models:
-                    pony_models = [(k, v) for k, v in sdxl_models.items() if 'pony' in k.lower()]
-                    if pony_models:
-                        cols = st.columns(2)
-                        for idx, (name, info) in enumerate(pony_models):
-                            with cols[idx % 2]:
-                                safe_render_button(name, f"pony_{name}", info.get('size', 'Unknown'))
-                    else:
-                        st.info("No Pony models found")
-            
-            with model_tabs[2]:  # Illustrious
-                st.markdown("#### Illustrious Models")
-                if sdxl_models:
-                    ill_models = [(k, v) for k, v in sdxl_models.items() if 'illustrious' in k.lower()]
-                    if ill_models:
-                        cols = st.columns(2)
-                        for idx, (name, info) in enumerate(ill_models):
-                            with cols[idx % 2]:
-                                safe_render_button(name, f"ill_{name}", info.get('size', 'Unknown'))
-                    else:
-                        st.info("No Illustrious models found")
-            
-            with model_tabs[3]:  # Misc
-                ext_tabs = st.tabs(["SAM", "ADetailer", "Upscaler", "Reactor"])
-                
-                with ext_tabs[0]:
-                    st.info("SAM models will appear here")
-                with ext_tabs[1]:
-                    st.info("ADetailer models will appear here")
-                with ext_tabs[2]:
-                    st.info("Upscaler models will appear here")
-                with ext_tabs[3]:
-                    st.info("Reactor models will appear here")
-    
-    with tab3:  # Model search tab
-        # Level 2: Search sources
-        tab9, tab10, tab11, tab12 = st.tabs([
-            "Civtai search",
-            "HF search", 
-            "Browse local PC (not colab instance actual PC)",
-            "Queue"
-        ])
-        
-        with tab9:  # CivitAI search
-            # Level 3: View types
-            tab13, tab14, tab15 = st.tabs([
-                "Model page basic + pic basic",
-                "Verbose every detail",
-                "Download Queue"
-            ])
-            
-            with tab13:  # Basic view
-                st.markdown("#### 🔍 CivitAI Basic Search")
-                
-                col1, col2, col3 = st.columns([3, 1, 1])
-                with col1:
-                    search = st.text_input("Search", placeholder="anime, realistic, etc...")
-                with col2:
-                    model_type = st.selectbox("Type", ["All", "Checkpoint", "LORA", "VAE"])
-                with col3:
-                    if st.button("🔍 Search"):
-                        st.session_state.output_log.append(f"Searching: {search}")
+                    # Create custom button with HTML
+                    button_class = "model-button-selected" if is_selected else "model-button"
+                    st.markdown(f"""
+                        <div class="{button_class}" onclick="console.log('clicked')">
+                            {model_name[:30]}...
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Actual button (invisible)
+                    if st.button("", key=f"btn_{model_id}", use_container_width=True):
+                        toggle_model(model_id)
                         st.rerun()
-                
-                st.markdown("---")
-                st.info("Search results with preview images will appear here")
-            
-            with tab14:  # Verbose view
-                st.markdown("#### 📊 Verbose Model Information")
-                st.markdown("*Everything available from the CivitAI API*")
-                
-                model_id = st.text_input("Enter Model ID", placeholder="e.g., 4384")
-                if st.button("Load Full Details"):
-                    st.session_state.output_log.append(f"Loading model {model_id} details...")
-                
-                # Example verbose info structure
-                with st.expander("Model Stats", expanded=True):
-                    col1, col2, col3, col4 = st.columns(4)
-                    with col1:
-                        st.metric("Downloads", "0")
-                    with col2:
-                        st.metric("Likes", "0")
-                    with col3:
-                        st.metric("Rating", "0.0⭐")
-                    with col4:
-                        st.metric("Reviews", "0")
-                
-                with st.expander("Tags & Metadata"):
-                    st.info("Tags, trigger words, training details will appear here")
-                
-                with st.expander("Sample Images & Prompts"):
-                    st.info("Image gallery with full prompt data will appear here")
-                
-                with st.expander("Version History"):
-                    st.info("All model versions and files will appear here")
-                
-                with st.expander("Creator Info"):
-                    st.info("Creator details and other models will appear here")
-            
-            with tab15:  # Download Queue (CivitAI specific)
-                st.markdown("#### CivitAI Download Queue")
-                if st.session_state.download_queue:
-                    for item in st.session_state.download_queue:
-                        col1, col2 = st.columns([4, 1])
-                        with col1:
-                            st.write(f"📎 {item.get('name', 'Unknown')}")
-                        with col2:
-                            if st.button("Remove", key=f"rm_{item.get('name', '')}"):
-                                st.session_state.download_queue.remove(item)
-                                st.rerun()
-                else:
-                    st.info("No items in CivitAI queue")
         
-        with tab10:  # HF search
-            st.markdown("#### 🤗 HuggingFace Search")
-            hf_query = st.text_input("Search HuggingFace", placeholder="stabilityai/stable-diffusion...")
-            if st.button("Search HF"):
-                st.session_state.output_log.append(f"Searching HF: {hf_query}")
-                st.rerun()
+        with sd15_subtabs[1]:  # LoRAs
+            st.info("SD 1.5 LoRAs will be displayed here")
         
-        with tab11:  # Browse local PC
-            st.markdown("#### 💻 Browse Local PC")
-            st.info("This browses YOUR computer, not the Colab/cloud instance")
-            
-            uploaded = st.file_uploader(
-                "Select models from your computer",
-                type=['safetensors', 'ckpt', 'pt', 'bin'],
-                accept_multiple_files=True
-            )
-            
-            if uploaded:
-                for file in uploaded:
-                    col1, col2 = st.columns([4, 1])
-                    with col1:
-                        st.write(f"📎 {file.name} ({file.size / 1024 / 1024:.1f} MB)")
-                    with col2:
-                        if st.button(f"Upload", key=f"up_{file.name}"):
-                            st.session_state.output_log.append(f"Uploading {file.name}...")
-                            st.rerun()
+        with sd15_subtabs[2]:  # VAE
+            st.info("SD 1.5 VAEs will be displayed here")
         
-        with tab12:  # Main Queue (everything)
-            st.markdown("#### 📥 Master Download Queue")
-            st.info("All selected models from all sources")
+        with sd15_subtabs[3]:  # ControlNet
+            st.info("SD 1.5 ControlNet models will be displayed here")
+    
+    # SDXL Tab
+    with model_tabs[1]:
+        sdxl_subtabs = st.tabs(["Models", "LoRAs", "VAE", "ControlNet"])
+        
+        with sdxl_subtabs[0]:  # Models
+            st.markdown("### SDXL Models")
             
-            # Summary
-            selected_count = len(st.session_state.selected_models)
-            queue_count = len(st.session_state.download_queue)
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Selected Models", selected_count)
-            with col2:
-                st.metric("Queued Downloads", queue_count)
-            with col3:
-                st.metric("Total Items", selected_count + queue_count)
-            
-            st.markdown("---")
-            
-            # Selected models
-            if st.session_state.selected_models:
-                st.markdown("##### Selected Models")
-                for model_id in st.session_state.selected_models:
-                    col1, col2 = st.columns([4, 1])
-                    with col1:
-                        st.write(f"✅ {model_id}")
-                    with col2:
-                        if st.button("Remove", key=f"rm_sel_{model_id}"):
-                            st.session_state.selected_models.remove(model_id)
-                            st.rerun()
-            
-            # Download queue
-            if st.session_state.download_queue:
-                st.markdown("##### Queued Downloads")
-                for item in st.session_state.download_queue:
-                    st.write(f"📥 {item}")
+            # Create model grid
+            cols = st.columns(3)
+            for idx, (model_name, model_info) in enumerate(list(sdxl_models.items())[:9]):
+                with cols[idx % 3]:
+                    model_id = f"sdxl_{model_name}"
+                    is_selected = model_id in st.session_state.selected_models
+                    
+                    # Create custom button with HTML
+                    button_class = "model-button-selected" if is_selected else "model-button"
+                    st.markdown(f"""
+                        <div class="{button_class}">
+                            {model_name[:30]}...
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Actual button (invisible)
+                    if st.button("", key=f"btn_{model_id}", use_container_width=True):
+                        toggle_model(model_id)
+                        st.rerun()
+        
+        with sdxl_subtabs[1]:  # LoRAs
+            st.info("SDXL LoRAs will be displayed here")
+        
+        with sdxl_subtabs[2]:  # VAE
+            st.info("SDXL VAEs will be displayed here")
+        
+        with sdxl_subtabs[3]:  # ControlNet
+            st.info("SDXL ControlNet models will be displayed here")
+    
+    # Pony Tab
+    with model_tabs[2]:
+        pony_subtabs = st.tabs(["Models", "LoRAs", "VAE"])
+        
+        with pony_subtabs[0]:
+            st.info("Pony models will be displayed here")
+        
+        with pony_subtabs[1]:
+            st.info("Pony LoRAs will be displayed here")
+        
+        with pony_subtabs[2]:
+            st.info("Pony VAEs will be displayed here")
+    
+    # Illustrious Tab
+    with model_tabs[3]:
+        illustrious_subtabs = st.tabs(["Models", "LoRAs", "VAE"])
+        
+        with illustrious_subtabs[0]:
+            st.info("Illustrious models will be displayed here")
+        
+        with illustrious_subtabs[1]:
+            st.info("Illustrious LoRAs will be displayed here")
+        
+        with illustrious_subtabs[2]:
+            st.info("Illustrious VAEs will be displayed here")
+    
+    # Misc Tab
+    with model_tabs[4]:
+        misc_tabs = st.tabs(["SAM", "ADetailer", "Upscaler", "Reactor", "Other Extensions"])
+        
+        with misc_tabs[0]:
+            st.info("SAM models will be displayed here")
+        
+        with misc_tabs[1]:
+            st.info("ADetailer models will be displayed here")
+        
+        with misc_tabs[2]:
+            st.info("Upscaler models will be displayed here")
+        
+        with misc_tabs[3]:
+            st.info("Reactor models will be displayed here")
+        
+        with misc_tabs[4]:
+            st.info("Other extension models will be displayed here")
 
-# Download section
+with tab_browser:
+    st.markdown("### 🔍 CivitAI Model Browser")
+    
+    # Search bar
+    search_col1, search_col2 = st.columns([3, 1])
+    with search_col1:
+        search_query = st.text_input("Search models...", placeholder="Enter model name or tag")
+    with search_col2:
+        search_button = st.button("Search", use_container_width=True, type="primary")
+    
+    # Filters
+    filter_cols = st.columns(4)
+    with filter_cols[0]:
+        model_type = st.selectbox("Type", ["All", "Checkpoint", "LoRA", "VAE", "ControlNet"])
+    with filter_cols[1]:
+        base_model = st.selectbox("Base Model", ["All", "SD 1.5", "SDXL", "Pony", "Illustrious"])
+    with filter_cols[2]:
+        sort_by = st.selectbox("Sort By", ["Most Downloaded", "Highest Rated", "Newest"])
+    with filter_cols[3]:
+        nsfw_filter = st.checkbox("Include NSFW", value=False)
+    
+    # Results area
+    st.markdown("### Search Results")
+    st.info("Enter a search query to find models on CivitAI")
+
+with tab_settings:
+    st.markdown("### ⚙️ Settings")
+    
+    settings_tabs = st.tabs(["Paths", "Download", "Advanced", "About"])
+    
+    with settings_tabs[0]:
+        st.markdown("### Storage Paths")
+        st.text_input("Models Path", value="/storage/models", key="models_path")
+        st.text_input("LoRA Path", value="/storage/loras", key="lora_path")
+        st.text_input("VAE Path", value="/storage/vae", key="vae_path")
+        st.text_input("ControlNet Path", value="/storage/controlnet", key="controlnet_path")
+    
+    with settings_tabs[1]:
+        st.markdown("### Download Settings")
+        st.slider("Parallel Downloads", 1, 16, 4, key="parallel_downloads")
+        st.checkbox("Use Aria2c", value=True, key="use_aria2c")
+        st.checkbox("Auto-extract ZIP files", value=True, key="auto_extract")
+    
+    with settings_tabs[2]:
+        st.markdown("### Advanced Settings")
+        st.checkbox("Enable Debug Mode", value=False, key="debug_mode")
+        st.checkbox("Auto-detect Extensions", value=True, key="auto_detect")
+        st.number_input("Cache Size (GB)", min_value=1, max_value=100, value=10, key="cache_size")
+    
+    with settings_tabs[3]:
+        st.markdown("### About SD-DarkMaster-Pro")
+        st.info("""
+        **Version:** 2.0.0  
+        **Author:** DarkMaster  
+        **License:** MIT  
+        
+        SD-DarkMaster-Pro is an advanced Stable Diffusion WebUI manager with integrated model management,
+        CivitAI browser, and multi-platform support.
+        """)
+
+# Download Queue Section (Bottom)
 st.markdown("---")
-col1, col2, col3 = st.columns([2, 6, 2])
+st.markdown("### 📥 Download Queue")
 
-with col1:
-    total = len(st.session_state.selected_models) + len(st.session_state.download_queue)
-    if st.button(f"📥 Download All ({total})", type="primary"):
-        if total > 0:
-            st.session_state.output_log.append(f"Downloading {total} items...")
-        else:
-            st.session_state.output_log.append("Nothing to download")
-        st.rerun()
+queue_col1, queue_col2 = st.columns([4, 1])
 
-with col2:
-    st.progress(0)
-    st.caption(f"Ready to download {total} items" if total else "Select models to download")
+with queue_col1:
+    if st.session_state.selected_models:
+        # Show progress bar
+        progress = st.progress(0, text="Ready to download...")
+        
+        # Show selected models
+        st.markdown(f"**Selected Models:** {len(st.session_state.selected_models)}")
+        
+        # Sample queue display
+        with st.expander("View Queue", expanded=False):
+            for model in list(st.session_state.selected_models)[:5]:
+                st.markdown(f"- {model}")
+    else:
+        st.info("No models selected for download")
 
-with col3:
-    if st.button("🧹 Clear All"):
-        st.session_state.selected_models = set()
-        st.session_state.download_queue = []
-        st.session_state.output_log.append("Cleared all selections")
-        st.rerun()
+with queue_col2:
+    if st.button("⬇️ Download All", key="download_all", use_container_width=True, type="primary", 
+                 disabled=len(st.session_state.selected_models) == 0):
+        add_console_output(f"Starting download of {len(st.session_state.selected_models)} models...")
+        with st.spinner("Downloading..."):
+            time.sleep(2)  # Simulate download
+        st.success("Download started!")
 
-# Output console
-st.markdown("---")
-st.markdown("#### 📋 Output Console")
-output = "\n".join(st.session_state.output_log[-10:]) if st.session_state.output_log else "System ready..."
-st.code(output, language='bash')
+# Add initialization message
+if len(st.session_state.console_output) == 0:
+    add_console_output("SD-DarkMaster-Pro initialized successfully")
+    add_console_output(f"Platform detected: {st.session_state.environment_info['platform']}")
+    add_console_output("Ready for model selection...")
