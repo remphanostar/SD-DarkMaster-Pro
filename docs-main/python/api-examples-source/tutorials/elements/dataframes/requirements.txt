@@ -1,2 +1,0 @@
-Faker
-streamlit>=1.48.0

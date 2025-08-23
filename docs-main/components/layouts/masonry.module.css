@@ -1,7 +1,0 @@
-.Container {
-  @apply columns-1 lg:columns-2 gap-8 max-w-full;
-}
-
-.Container > * {
-  @apply break-inside-avoid;
-}

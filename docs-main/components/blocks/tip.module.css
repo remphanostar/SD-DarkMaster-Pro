@@ -1,7 +1,0 @@
-.Tip {
-  @apply bg-indigo-10;
-}
-
-:global(.dark) .Tip {
-  @apply bg-indigo-100;
-}
