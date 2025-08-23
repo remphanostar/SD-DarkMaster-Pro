@@ -29,7 +29,16 @@ logger = logging.getLogger(__name__)
 try:
     project_root = Path(__file__).parent.parent
 except NameError:
-    project_root = Path('/workspace/SD-DarkMaster-Pro')
+    # When executed from notebook - detect platform
+    if os.path.exists('/content'):
+        project_root = Path('/content/SD-DarkMaster-Pro')
+    elif os.path.exists('/kaggle'):
+        project_root = Path('/kaggle/working/SD-DarkMaster-Pro')
+    elif os.path.exists('/workspace'):
+        project_root = Path('/workspace/SD-DarkMaster-Pro')
+    else:
+        project_root = Path.home() / 'SD-DarkMaster-Pro'
+        
 sys.path.insert(0, str(project_root))
 
 # ============================================================================

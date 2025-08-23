@@ -7,8 +7,20 @@ from pathlib import Path
 try:
     project_root = Path(__file__).parent.parent
 except NameError:
-    # When executed from notebook
-    project_root = Path('/workspace')
+    # When executed from notebook - detect platform
+    if os.path.exists('/content'):
+        # Google Colab
+        project_root = Path('/content/SD-DarkMaster-Pro')
+    elif os.path.exists('/kaggle'):
+        # Kaggle
+        project_root = Path('/kaggle/working/SD-DarkMaster-Pro')
+    elif os.path.exists('/workspace'):
+        # Lightning.ai or similar
+        project_root = Path('/workspace/SD-DarkMaster-Pro')
+    else:
+        # Local or other
+        project_root = Path.home() / 'SD-DarkMaster-Pro'
+        
 scripts_dir = project_root / 'scripts'
 
 platform = 'colab' if 'google.colab' in sys.modules else 'local'

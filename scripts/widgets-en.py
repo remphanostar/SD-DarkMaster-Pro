@@ -15,7 +15,20 @@ import time
 from pathlib import Path
 
 # Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+try:
+    # When running as script
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+except NameError:
+    # When executed from notebook - detect platform
+    if os.path.exists('/content'):
+        project_root = '/content/SD-DarkMaster-Pro'
+    elif os.path.exists('/kaggle'):
+        project_root = '/kaggle/working/SD-DarkMaster-Pro'
+    elif os.path.exists('/workspace'):
+        project_root = '/workspace/SD-DarkMaster-Pro'
+    else:
+        project_root = os.path.join(os.path.expanduser('~'), 'SD-DarkMaster-Pro')
+        
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
