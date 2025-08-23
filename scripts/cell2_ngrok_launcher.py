@@ -3,6 +3,14 @@
 import os, sys, subprocess, time
 from pathlib import Path
 
+# Get the correct scripts directory
+try:
+    project_root = Path(__file__).parent.parent
+except NameError:
+    # When executed from notebook
+    project_root = Path('/workspace')
+scripts_dir = project_root / 'scripts'
+
 platform = 'colab' if 'google.colab' in sys.modules else 'local'
 if platform == 'colab':
     # Install and setup ngrok
@@ -17,7 +25,6 @@ if platform == 'colab':
     time.sleep(2)
     
     # Start streamlit
-    scripts_dir = Path('/content/SD-DarkMaster-Pro/scripts')
     cmd = f"streamlit run {scripts_dir}/widgets-en.py --server.port 8501 --server.headless true"
     subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
