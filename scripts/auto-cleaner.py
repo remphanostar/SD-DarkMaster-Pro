@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 """
-SD-DarkMaster-Pro Advanced Storage Management
-Storage visualization and cleanup tools
-300+ lines of storage management
+SD-DarkMaster-Pro Auto-Cleaner & Storage Manager
+Advanced storage management with smart cleanup
 """
 
-import os
+# Suppress warnings first
 import sys
-import shutil
-import json
-import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+sys.path.insert(0, str(Path(__file__).parent))
+from suppress_warnings import suppress_streamlit_warnings
+suppress_streamlit_warnings()
+
+import os
+import json
+import shutil
+import subprocess
+from typing import Dict, List, Tuple, Optional
 from datetime import datetime, timedelta
+import humanize
+import time
 import logging
+import hashlib
 
 # Add project root to path
 try:

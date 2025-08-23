@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """
-SD-DarkMaster-Pro Dashboard - Stable Version with Your Exact Tab Structure
-No jumping, consistent layout, comprehensive features
+SD-DarkMaster-Pro Widgets Dashboard
+Enhanced UI with CivitAI integration and model selection
 """
+
+# Suppress warnings first
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+from suppress_warnings import suppress_streamlit_warnings
+suppress_streamlit_warnings()
 
 import streamlit as st
 import os
-import sys
 import json
 import platform
 import subprocess
 from datetime import datetime
+import psutil
 import time
-from pathlib import Path
 
 # Add project root to path for imports
 try:

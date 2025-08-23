@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """
-SD-DarkMaster-Pro Multi-Platform WebUI Launch System
-600+ lines of enterprise-grade launch management
+SD-DarkMaster-Pro Multi-Platform WebUI Launcher
+Handles launching various WebUIs with proper configuration
 """
 
-import os
+# Suppress warnings first
 import sys
-import subprocess
-import asyncio
-import json
-import time
-import shutil
-import signal
-import psutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-from datetime import datetime
-import logging
+sys.path.insert(0, str(Path(__file__).parent))
+from suppress_warnings import suppress_streamlit_warnings
+suppress_streamlit_warnings()
+
+import os
+import json
+import subprocess
+import time
 import threading
-from dataclasses import dataclass
-import urllib.request
+import psutil
+import shutil
+from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+import platform
+import signal
+import atexit
+import logging
 
 # Add project root to path
 try:
@@ -156,6 +160,8 @@ TUNNEL_SERVICES = {
 # ============================================================================
 # LAUNCH MANAGER
 # ============================================================================
+
+from dataclasses import dataclass
 
 @dataclass
 class LaunchConfig:
@@ -596,6 +602,9 @@ class WebUILauncher:
 # ============================================================================
 # MAIN INTERFACE
 # ============================================================================
+
+import asyncio
+import urllib.request
 
 def render_launch_interface():
     """Render launch interface"""

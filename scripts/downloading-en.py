@@ -1,29 +1,35 @@
 #!/usr/bin/env python3
 """
-SD-DarkMaster-Pro Intelligent Downloads & Storage Script
-Performance-optimized downloads with unified storage management
-900+ lines of enterprise-grade download management
+SD-DarkMaster-Pro Download Manager
+Advanced download orchestration with aria2c integration
 """
 
-import os
+# Suppress warnings first
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+from suppress_warnings import suppress_streamlit_warnings
+suppress_streamlit_warnings()
+
+import os
 import json
 import asyncio
-import logging
-import hashlib
+import aiohttp
+import aiofiles
+from typing import Dict, List, Optional, Tuple, Any
+from datetime import datetime
+import subprocess
 import time
-import shutil
 import threading
 import queue
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Callable
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import urllib.request
-import urllib.parse
-import subprocess
-import shutil
+from concurrent.futures import ThreadPoolExecutor
+import hashlib
+import logging
+from tqdm import tqdm
+import requests
+from urllib.parse import urlparse, unquote
+import psutil
+import platform
 
 # Add project root to path
 try:
