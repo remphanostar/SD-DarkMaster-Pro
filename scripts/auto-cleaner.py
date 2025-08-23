@@ -4,14 +4,9 @@ SD-DarkMaster-Pro Auto-Cleaner & Storage Manager
 Advanced storage management with smart cleanup
 """
 
-# Suppress warnings first
 import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from suppress_warnings import suppress_streamlit_warnings
-suppress_streamlit_warnings()
-
 import os
+from pathlib import Path
 import json
 import shutil
 import subprocess
@@ -22,9 +17,10 @@ import time
 import logging
 import hashlib
 
-# Add project root to path
+# Add project root to path and handle notebook execution
 try:
     project_root = Path(__file__).parent.parent
+    sys.path.insert(0, str(Path(__file__).parent))
 except NameError:
     # When executed from notebook - detect platform
     if os.path.exists('/content'):
@@ -35,8 +31,16 @@ except NameError:
         project_root = Path('/workspace/SD-DarkMaster-Pro')
     else:
         project_root = Path.home() / 'SD-DarkMaster-Pro'
+    sys.path.insert(0, str(project_root / 'scripts'))
         
 sys.path.insert(0, str(project_root))
+
+# Suppress warnings after path is set
+try:
+    from suppress_warnings import suppress_streamlit_warnings
+    suppress_streamlit_warnings()
+except ImportError:
+    pass  # Silently skip if not available
 
 # Import modules
 from modules.enterprise.unified_storage_manager import UnifiedStorageManager

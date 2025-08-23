@@ -4,15 +4,10 @@ SD-DarkMaster-Pro Widgets Dashboard
 Enhanced UI with CivitAI integration and model selection
 """
 
-# Suppress warnings first
 import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from suppress_warnings import suppress_streamlit_warnings
-suppress_streamlit_warnings()
-
-import streamlit as st
 import os
+from pathlib import Path
+import streamlit as st
 import json
 import platform
 import subprocess
@@ -20,10 +15,11 @@ from datetime import datetime
 import psutil
 import time
 
-# Add project root to path for imports
+# Add project root to path for imports and handle notebook execution
 try:
     # When running as script
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, str(Path(__file__).parent))
 except NameError:
     # When executed from notebook - detect platform
     if os.path.exists('/content'):
@@ -34,9 +30,17 @@ except NameError:
         project_root = '/workspace/SD-DarkMaster-Pro'
     else:
         project_root = os.path.join(os.path.expanduser('~'), 'SD-DarkMaster-Pro')
+    sys.path.insert(0, os.path.join(project_root, 'scripts'))
         
 project_root = Path(project_root)
 sys.path.insert(0, str(project_root))
+
+# Suppress warnings after path is set
+try:
+    from suppress_warnings import suppress_streamlit_warnings
+    suppress_streamlit_warnings()
+except ImportError:
+    pass  # Silently skip if not available
 
 # Import model data
 from scripts._models_data import model_list as sd15_models, vae_list as sd15_vae_list, controlnet_list as sd15_controlnet_list, lora_list as sd15_lora_list

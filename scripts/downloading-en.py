@@ -4,14 +4,9 @@ SD-DarkMaster-Pro Download Manager
 Advanced download orchestration with aria2c integration
 """
 
-# Suppress warnings first
+import os
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from suppress_warnings import suppress_streamlit_warnings
-suppress_streamlit_warnings()
-
-import os
 import json
 import asyncio
 import aiohttp
@@ -35,9 +30,10 @@ import shutil
 import urllib.request
 import urllib.parse
 
-# Add project root to path
+# Add project root to path and handle notebook execution
 try:
     project_root = Path(__file__).parent.parent
+    sys.path.insert(0, str(Path(__file__).parent))
 except NameError:
     # When executed from notebook - detect platform
     if os.path.exists('/content'):
@@ -48,6 +44,14 @@ except NameError:
         project_root = Path('/workspace/SD-DarkMaster-Pro')
     else:
         project_root = Path.home() / 'SD-DarkMaster-Pro'
+    sys.path.insert(0, str(project_root / 'scripts'))
+
+# Suppress warnings after path is set
+try:
+    from suppress_warnings import suppress_streamlit_warnings
+    suppress_streamlit_warnings()
+except ImportError:
+    pass  # Silently skip if not available
         
 sys.path.insert(0, str(project_root))
 
@@ -655,10 +659,14 @@ class EnhancedDownloadInterface:
     def _load_session_selections(self):
         """Load selections from session.json if available"""
         session_file = project_root / 'configs' / 'session.json'
+        print(f"\n📂 Looking for session config at: {session_file}")
+        
         if session_file.exists():
             try:
                 with open(session_file, 'r') as f:
                     session_data = json.load(f)
+                
+                print(f"✅ Found session.json with keys: {list(session_data.keys())}")
                 
                 # Update session state with saved selections
                 if self.framework == 'streamlit':
@@ -669,9 +677,20 @@ class EnhancedDownloadInterface:
                     st.session_state['selected_controlnet'] = session_data.get('selected_controlnet', [])
                     st.session_state['civitai_downloads'] = session_data.get('civitai_downloads', [])
                     
+                    print(f"📦 Loaded from session:")
+                    print(f"   - Models: {len(st.session_state.get('selected_models', []))}")
+                    print(f"   - LoRAs: {len(st.session_state.get('selected_loras', []))}")
+                    print(f"   - VAEs: {1 if st.session_state.get('selected_vae') else 0}")
+                    print(f"   - ControlNets: {len(st.session_state.get('selected_controlnet', []))}")
+                    print(f"   - CivitAI: {len(st.session_state.get('civitai_downloads', []))}")
+                    
                 logger.info(f"Loaded session config: {len(session_data.get('selected_models', []))} models")
             except Exception as e:
+                print(f"⚠️ Error loading session config: {e}")
                 logger.error(f"Failed to load session config: {e}")
+        else:
+            print(f"⚠️ No session.json found. Please run Cell 2 or Cell 2b first to configure your selections.")
+            print(f"   Expected location: {session_file}")
     
     def _render_streamlit_interface(self):
         """Render enhanced Streamlit interface"""
@@ -1266,8 +1285,42 @@ def main():
     print("⚡ 900+ Lines of Enterprise Features")
     print("="*60 + "\n")
     
-    # Initialize and render interface
+    # Check if running in notebook without UI capability
+    try:
+        get_ipython()  # This exists in Jupyter/Colab
+        in_notebook = True
+    except NameError:
+        in_notebook = False
+    
+    # Initialize interface
     interface = EnhancedDownloadInterface()
+    
+    # In notebook mode, just load session and show info
+    if in_notebook and not any(arg in sys.argv for arg in ['--streamlit', '--gradio']):
+        print("🔄 Running in notebook mode - loading session configuration...")
+        interface._load_session_selections()
+        
+        # Check if we have any selections
+        session_file = project_root / 'configs' / 'session.json'
+        if session_file.exists():
+            with open(session_file, 'r') as f:
+                session_data = json.load(f)
+            
+            # If we have model selections, show them
+            if any(session_data.get(key, []) for key in ['selected_models', 'selected_loras', 'selected_vae', 'selected_controlnet', 'civitai_downloads']):
+                print("\n✅ Session loaded successfully!")
+                print("📋 To download your selected models, run Cell 4 next.")
+                print("\n💡 Tip: Cell 4 will automatically process all your selections from Cell 2/2b")
+            else:
+                print("\n⚠️ No model selections found in session!")
+                print("Please run Cell 2 or Cell 2b first to select models.")
+        else:
+            print("\n⚠️ No configuration found!")
+            print("Please run Cell 2 or Cell 2b first to configure your selections.")
+        
+        return
+    
+    # Otherwise render the full interface
     interface.render_interface()
 
 if __name__ == "__main__":

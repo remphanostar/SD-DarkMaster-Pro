@@ -4,14 +4,9 @@ SD-DarkMaster-Pro Multi-Platform WebUI Launcher
 Handles launching various WebUIs with proper configuration
 """
 
-# Suppress warnings first
 import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from suppress_warnings import suppress_streamlit_warnings
-suppress_streamlit_warnings()
-
 import os
+from pathlib import Path
 import json
 import subprocess
 import time
@@ -25,9 +20,10 @@ import signal
 import atexit
 import logging
 
-# Add project root to path
+# Add project root to path and handle notebook execution
 try:
     project_root = Path(__file__).parent.parent
+    sys.path.insert(0, str(Path(__file__).parent))
 except NameError:
     # When executed from notebook - detect platform
     if os.path.exists('/content'):
@@ -38,8 +34,16 @@ except NameError:
         project_root = Path('/workspace/SD-DarkMaster-Pro')
     else:
         project_root = Path.home() / 'SD-DarkMaster-Pro'
+    sys.path.insert(0, str(project_root / 'scripts'))
         
 sys.path.insert(0, str(project_root))
+
+# Suppress warnings after path is set
+try:
+    from suppress_warnings import suppress_streamlit_warnings
+    suppress_streamlit_warnings()
+except ImportError:
+    pass  # Silently skip if not available
 
 # Import modules
 from modules.core.platform_manager import PlatformManager
