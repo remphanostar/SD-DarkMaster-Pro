@@ -603,7 +603,57 @@ def main():
     print("🎨 Advanced Cleanup & Optimization")
     print("="*60 + "\n")
     
-    render_cleaner_interface()
+    # Check if running in notebook
+    try:
+        get_ipython()  # This exists in Jupyter/Colab
+        in_notebook = True
+    except NameError:
+        in_notebook = False
+    
+    if in_notebook:
+        # For notebook mode, show storage info and options
+        print("📊 Storage Analysis")
+        print("-" * 40)
+        
+        # Create cleaner instance
+        cleaner = StorageCleaner()
+        
+        # Get storage info
+        usage = cleaner.get_storage_usage()
+        print(f"📁 Storage Path: {project_root / 'storage'}")
+        print(f"💾 Total Size: {usage['total_human']}")
+        print(f"📊 Used: {usage['used_human']} ({usage['percent']}%)")
+        print(f"✨ Free: {usage['free_human']}")
+        
+        # Show breakdown by type
+        print("\n📂 Storage Breakdown:")
+        print("-" * 40)
+        for item_type, data in usage['by_type'].items():
+            print(f"{item_type.capitalize():12} {data['size_human']:>10} ({data['count']} files)")
+        
+        # Show available actions
+        print("\n🛠️ Available Actions:")
+        print("-" * 40)
+        print("1. Remove duplicate files")
+        print("2. Clean old downloads (30+ days)")
+        print("3. Clear temporary files")
+        print("4. Optimize storage paths")
+        
+        print("\n💡 Tip: To perform cleanup, use the Streamlit UI version of this tool")
+        print("   or manually manage files in: " + str(project_root / 'storage'))
+        
+        # Check for issues
+        duplicates = cleaner.find_duplicates()
+        if duplicates:
+            print(f"\n⚠️ Found {len(duplicates)} duplicate files wasting space")
+        
+        old_files = cleaner.find_old_files(days=30)
+        if old_files:
+            print(f"⚠️ Found {len(old_files)} files older than 30 days")
+            
+    else:
+        # For non-notebook environments, use UI
+        render_cleaner_interface()
 
 if __name__ == "__main__":
     main()

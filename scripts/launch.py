@@ -851,9 +851,68 @@ def main():
         except Exception as e:
             print(f"⚠️ Error loading session config: {e}")
     
+    # Check if running in notebook
+    try:
+        get_ipython()  # This exists in Jupyter/Colab
+        in_notebook = True
+    except NameError:
+        in_notebook = False
+    
     # Default to standard launcher
     print("📂 Using Git Clone Method (Standard Setup)")
-    render_launch_interface()
+    
+    if in_notebook:
+        # For notebook mode, directly execute the launch
+        print("\n🔄 Preparing to launch WebUI...")
+        
+        # Load session config
+        if session_file.exists():
+            try:
+                with open(session_file, 'r') as f:
+                    session_config = json.load(f)
+                webui_type = session_config.get('webui_type', 'Forge')
+                
+                print(f"📦 WebUI Type: {webui_type}")
+                print(f"📂 Models: {len(session_config.get('selected_models', []))}")
+                print(f"🎨 LoRAs: {len(session_config.get('selected_loras', []))}")
+                print(f"🎭 VAE: {'Yes' if session_config.get('selected_vae') else 'No'}")
+                print(f"🎮 ControlNets: {len(session_config.get('selected_controlnet', []))}")
+                
+                # Create launcher
+                launcher = WebUILauncher(webui_type)
+                
+                # Clone repository
+                print(f"\n📥 Cloning {webui_type} repository...")
+                if launcher.clone_repository():
+                    print(f"✅ Repository ready at: {launcher.repo_path}")
+                else:
+                    print(f"❌ Failed to clone {webui_type} repository")
+                    return
+                
+                # Install dependencies
+                print(f"\n📦 Installing dependencies...")
+                if launcher.install_dependencies():
+                    print(f"✅ Dependencies installed")
+                else:
+                    print(f"❌ Failed to install dependencies")
+                    return
+                
+                # Launch WebUI
+                print(f"\n🚀 Launching {webui_type}...")
+                if launcher.launch():
+                    print(f"\n✅ {webui_type} is now running!")
+                    print(f"🌐 Check the output above for the public URL")
+                else:
+                    print(f"❌ Failed to launch {webui_type}")
+                    
+            except Exception as e:
+                print(f"❌ Error: {e}")
+        else:
+            print("\n⚠️ No session configuration found!")
+            print("Please run Cell 2 or Cell 2b first to configure your settings.")
+    else:
+        # For non-notebook environments, use UI
+        render_launch_interface()
 
 if __name__ == "__main__":
     # Handle signals for graceful shutdown
