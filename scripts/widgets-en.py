@@ -649,55 +649,68 @@ with tab_browser:
                     with cols[idx % 3]:
                         # Model card
                         with st.container():
+                            # Ensure model is a dictionary
+                            if isinstance(model, str):
+                                st.warning(f"Invalid model data: {model}")
+                                continue
+                                
                             # Preview image
-                            if model.get('images'):
-                                st.image(model['images'][0]['url'], use_column_width=True)
+                            version_info = model.get('version', {})
+                            images = version_info.get('images', [])
+                            if images and len(images) > 0:
+                                st.image(images[0].get('url', ''), use_column_width=True)
                             
                             # Model info
-                            st.markdown(f"**{model['name']}**")
-                            st.caption(f"by {model.get('creator', {}).get('username', 'Unknown')}")
+                            st.markdown(f"**{model.get('name', 'Unknown')}**")
+                            
+                            # Creator is already a string from the API parser
+                            creator = model.get('creator', 'Unknown')
+                            st.caption(f"by {creator}")
                             
                             # Stats
                             col1, col2 = st.columns(2)
                             with col1:
-                                st.caption(f"⬇️ {model.get('downloadCount', 0):,}")
+                                st.caption(f"⬇️ {model.get('download_count', 0):,}")
                             with col2:
                                 st.caption(f"⭐ {model.get('rating', 0):.1f}")
                             
                             # Download button
                             if st.button("Download", key=f"dl_{model['id']}", use_container_width=True):
-                                # Add to download queue
-                                version = model.get('modelVersions', [{}])[0]
-                                if version:
-                                    download_url = version.get('downloadUrl', '')
-                                    filename = version.get('files', [{}])[0].get('name', f"{model['name']}.safetensors")
-                                    
-                                    # Determine storage path based on type
-                                    if model['type'] == 'Checkpoint':
-                                        storage_path = 'models/Stable-diffusion'
-                                    elif model['type'] in ['LORA', 'LoCon']:
-                                        storage_path = 'models/Lora'
-                                    elif model['type'] == 'VAE':
-                                        storage_path = 'models/VAE'
-                                    elif model['type'] == 'Controlnet':
-                                        storage_path = 'models/ControlNet'
-                                    else:
-                                        storage_path = 'models/Other'
-                                    
-                                    # Add to session state download queue
-                                    if 'civitai_downloads' not in st.session_state:
-                                        st.session_state.civitai_downloads = []
-                                    
+                                # Get download info from parsed version
+                                version = model.get('version', {})
+                                download_url = version.get('download_url', '')
+                                filename = version.get('name', f"{model['name']}.safetensors")
+                                
+                                # Determine storage path based on type
+                                model_type = model.get('type', 'Checkpoint')
+                                if model_type == 'Checkpoint':
+                                    storage_path = 'models/Stable-diffusion'
+                                elif model_type in ['LORA', 'LoCon']:
+                                    storage_path = 'models/Lora'
+                                elif model_type == 'VAE':
+                                    storage_path = 'models/VAE'
+                                elif model_type == 'Controlnet':
+                                    storage_path = 'models/ControlNet'
+                                else:
+                                    storage_path = 'models/Other'
+                                
+                                # Add to session state download queue
+                                if 'civitai_downloads' not in st.session_state:
+                                    st.session_state.civitai_downloads = []
+                                
+                                if download_url:
                                     st.session_state.civitai_downloads.append({
                                         'name': model['name'],
                                         'url': download_url,
                                         'filename': filename,
                                         'storage_path': storage_path,
-                                        'type': model['type']
+                                        'type': model_type
                                     })
                                     
                                     st.success(f"Added {model['name']} to download queue!")
                                     add_console_output(f"Queued download: {model['name']}")
+                                else:
+                                    st.error("No download URL available for this model")
             else:
                 st.info("No models found. Try different search terms.")
     
@@ -917,7 +930,8 @@ with save_col3:
             
             st.success("✅ Configuration saved successfully!")
             add_console_output(f"Configuration saved to: {config_file}")
-            add_console_output(f"Models: {len(config['selected_models'])}, LoRAs: {len(config['selected_loras'])}, VAEs: {len(config['selected_vae'])}, ControlNets: {len(config['selected_controlnet'])}")
+            vae_count = 1 if config['selected_vae'] else 0
+            add_console_output(f"Models: {len(config['selected_models'])}, LoRAs: {len(config['selected_loras'])}, VAE: {vae_count}, ControlNets: {len(config['selected_controlnet'])}")
             add_console_output(f"WebUI: {webui_type}, Method: {install_method}, Base Lock: {base_model_lock}")
             
             # Show saved config details
